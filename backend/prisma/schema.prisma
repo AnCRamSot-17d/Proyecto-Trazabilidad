@@ -1,0 +1,143 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model Supplier {
+  id    String           @id @default(cuid())
+  name  String
+  email String?          @unique
+  lots  RawMaterialLot[]
+}
+
+model RawMaterial {
+  id   String           @id @default(cuid())
+  code String           @unique
+  name String
+  unit String
+  lots RawMaterialLot[]
+}
+
+model RawMaterialLot {
+  id           String                @id @default(cuid())
+  code         String                @unique
+  materialId   String
+  supplierId   String
+  quantity     Decimal               @db.Decimal(18, 4)
+  receivedAt   DateTime              @default(now())
+  material     RawMaterial           @relation(fields: [materialId], references: [id])
+  supplier     Supplier              @relation(fields: [supplierId], references: [id])
+  consumptions MaterialConsumption[]
+  events       TraceabilityEvent[]
+}
+
+model Product {
+  id     String            @id @default(cuid())
+  code   String            @unique
+  name   String
+  unit   String
+  orders ProductionOrder[]
+}
+
+model ProductionOrder {
+  id           String                @id @default(cuid())
+  code         String                @unique
+  productId    String
+  quantity     Decimal               @db.Decimal(18, 4)
+  createdAt    DateTime              @default(now())
+  product      Product               @relation(fields: [productId], references: [id])
+  consumptions MaterialConsumption[]
+  lots         FinishedProductLot[]
+  events       TraceabilityEvent[]
+}
+
+model MaterialConsumption {
+  id                String          @id @default(cuid())
+  productionOrderId String
+  rawMaterialLotId  String
+  quantity          Decimal         @db.Decimal(18, 4)
+  productionOrder   ProductionOrder @relation(fields: [productionOrderId], references: [id])
+  rawMaterialLot    RawMaterialLot  @relation(fields: [rawMaterialLotId], references: [id])
+
+  @@unique([productionOrderId, rawMaterialLotId])
+  @@index([rawMaterialLotId])
+}
+
+model FinishedProductLot {
+  id                String              @id @default(cuid())
+  code              String              @unique
+  productionOrderId String
+  quantity          Decimal             @db.Decimal(18, 4)
+  manufacturedAt    DateTime            @default(now())
+  productionOrder   ProductionOrder     @relation(fields: [productionOrderId], references: [id])
+  qualityControls   QualityControl[]
+  movements         InventoryMovement[]
+  shipments         Shipment[]
+  events            TraceabilityEvent[]
+
+  @@index([productionOrderId])
+}
+
+enum QualityStatus {
+  PENDING
+  APPROVED
+  REJECTED
+}
+
+model QualityControl {
+  id        String             @id @default(cuid())
+  lotId     String
+  status    QualityStatus      @default(PENDING)
+  notes     String?
+  createdAt DateTime           @default(now())
+  lot       FinishedProductLot @relation(fields: [lotId], references: [id])
+
+  @@index([lotId])
+}
+
+enum MovementType {
+  IN
+  OUT
+}
+
+model InventoryMovement {
+  id        String             @id @default(cuid())
+  lotId     String
+  type      MovementType
+  quantity  Decimal            @db.Decimal(18, 4)
+  createdAt DateTime           @default(now())
+  lot       FinishedProductLot @relation(fields: [lotId], references: [id])
+
+  @@index([lotId])
+}
+
+model Shipment {
+  id          String             @id @default(cuid())
+  lotId       String
+  destination String
+  quantity    Decimal            @db.Decimal(18, 4)
+  shippedAt   DateTime           @default(now())
+  lot         FinishedProductLot @relation(fields: [lotId], references: [id])
+
+  @@index([lotId])
+}
+
+model TraceabilityEvent {
+  id                   String              @id @default(cuid())
+  type                 String
+  rawMaterialLotId     String?
+  productionOrderId    String?
+  finishedProductLotId String?
+  createdAt            DateTime            @default(now())
+  rawMaterialLot       RawMaterialLot?     @relation(fields: [rawMaterialLotId], references: [id])
+  productionOrder      ProductionOrder?    @relation(fields: [productionOrderId], references: [id])
+  finishedProductLot   FinishedProductLot? @relation(fields: [finishedProductLotId], references: [id])
+
+  @@index([rawMaterialLotId])
+  @@index([productionOrderId])
+  @@index([finishedProductLotId])
+}

@@ -1,0 +1,17 @@
+# Dependencias
+node_modules/
+backend/node_modules/
+frontend/node_modules/
+
+# Compilaciones
+dist/
+backend/dist/
+frontend/dist/
+.angular/
+
+# Entorno y logs
+.env*
+!.env.example
+*.log
+*.tsbuildinfo
+.DS_Store

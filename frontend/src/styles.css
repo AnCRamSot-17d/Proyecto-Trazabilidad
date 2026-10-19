@@ -1,0 +1,217 @@
+:root {
+  /* Paleta Oficial: Titanio & Cian Glacial (Swiss Precision & Pharma/Cosmetics) */
+  --titanium-950: #090d16;
+  --titanium-900: #0f172a;       /* Titanio Profundo (Color Principal) */
+  --titanium-800: #1e293b;
+  --titanium-700: #334155;
+  --titanium-600: #475569;
+  --titanium-500: #64748b;
+  --titanium-400: #94a3b8;
+  --titanium-300: #cbd5e1;
+  --titanium-200: #e2e8f0;
+  --titanium-100: #f1f5f9;
+  --titanium-50:  #f8fafc;
+  --white: #ffffff;
+
+  /* Acento: Cian Glacial */
+  --cyan-primary: #0891b2;       /* Cian Glacial de Precisión */
+  --cyan-hover: #0e7490;
+  --cyan-light: #ecfeff;
+  --cyan-glow: rgba(8, 145, 178, 0.22);
+  --cyan-vibrant: #06b6d4;
+
+  /* Variables Semánticas */
+  --primary: var(--titanium-900);
+  --primary-hover: var(--titanium-800);
+  --accent: var(--cyan-primary);
+  --accent-hover: var(--cyan-hover);
+  --accent-light: var(--cyan-light);
+
+  /* Estados de Calidad Farmacéutica & BPM */
+  --status-approved: #059669;
+  --status-approved-bg: #ecfdf5;
+  --status-pending: #0284c7;     /* Azul cian para análisis en curso */
+  --status-pending-bg: #f0f9ff;
+  --status-quarantine: #6366f1;  /* Cuarentena / muestreo */
+  --status-quarantine-bg: #eef2ff;
+  --status-rejected: #475569;
+  --status-rejected-bg: #f1f5f9;
+
+  /* Sistema de Bordes y Sombras Suizas */
+  --radius-sm: 6px;
+  --radius-md: 10px;
+  --radius-lg: 14px;
+  --radius-full: 9999px;
+
+  --shadow-xs: 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-sm: 0 1px 3px rgba(15, 23, 42, 0.06), 0 1px 2px rgba(15, 23, 42, 0.04);
+  --shadow-md: 0 4px 6px -1px rgba(15, 23, 42, 0.07), 0 2px 4px -2px rgba(15, 23, 42, 0.04);
+  --shadow-lg: 0 10px 15px -3px rgba(15, 23, 42, 0.07), 0 4px 6px -4px rgba(15, 23, 42, 0.03);
+  --shadow-glow: 0 0 24px rgba(6, 182, 212, 0.22);
+
+  --font-sans: 'Inter', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
+
+body {
+  font-family: var(--font-sans);
+  background-color: var(--titanium-50);
+  color: var(--titanium-800);
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-family: var(--font-heading);
+  color: var(--titanium-900);
+  font-weight: 700;
+  letter-spacing: -0.025em;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+/* App Shell Layout */
+.app-layout {
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  background: var(--titanium-50);
+}
+
+.main-content {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+}
+
+.page-container {
+  max-width: 1240px;
+  margin: 0 auto;
+  padding: 2.75rem 1.75rem;
+  width: 100%;
+}
+
+/* Tarjetas */
+.card {
+  background: var(--white);
+  border: 1px solid var(--titanium-200);
+  border-radius: var(--radius-lg);
+  padding: 1.85rem;
+  box-shadow: var(--shadow-sm);
+  transition: all 0.2s cubic-bezier(0.16, 1, 0.3, 1);
+}
+
+.card:hover {
+  border-color: var(--titanium-300);
+  box-shadow: var(--shadow-md);
+}
+
+/* Botones */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem;
+  padding: 0.65rem 1.35rem;
+  border-radius: var(--radius-md);
+  font-weight: 600;
+  font-size: 0.875rem;
+  cursor: pointer;
+  border: 1px solid transparent;
+  transition: all 0.15s ease;
+  user-select: none;
+}
+
+.btn-primary {
+  background: var(--titanium-900);
+  color: var(--white);
+  box-shadow: 0 1px 3px rgba(15, 23, 42, 0.2);
+}
+
+.btn-primary:hover {
+  background: var(--titanium-800);
+  transform: translateY(-1px);
+  box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
+}
+
+.btn-accent {
+  background: var(--cyan-primary);
+  color: var(--white);
+  box-shadow: 0 1px 3px rgba(8, 145, 178, 0.3);
+}
+
+.btn-accent:hover {
+  background: var(--cyan-hover);
+  box-shadow: var(--shadow-glow);
+  transform: translateY(-1px);
+}
+
+.btn-secondary {
+  background: var(--white);
+  border-color: var(--titanium-300);
+  color: var(--titanium-700);
+}
+
+.btn-secondary:hover {
+  background: var(--titanium-50);
+  border-color: var(--titanium-400);
+  color: var(--titanium-900);
+}
+
+/* Badges */
+.badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+  padding: 0.3rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: 0.725rem;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 0.05em;
+}
+
+.badge-approved   { background: var(--status-approved-bg); color: var(--status-approved); border: 1px solid rgba(5, 150, 105, 0.25); }
+.badge-pending    { background: var(--status-pending-bg);  color: var(--status-pending);  border: 1px solid rgba(2, 132, 199, 0.25); }
+.badge-quarantine { background: var(--status-quarantine-bg); color: var(--status-quarantine); border: 1px solid rgba(99, 102, 241, 0.25); }
+.badge-rejected   { background: var(--status-rejected-bg); color: var(--status-rejected); border: 1px solid rgba(71, 85, 105, 0.25); }
+.badge-cyan       { background: var(--cyan-light); color: var(--cyan-primary); border: 1px solid rgba(8, 145, 178, 0.25); }
+.badge-titanium   { background: var(--titanium-100); color: var(--titanium-700); border: 1px solid var(--titanium-200); }
+
+/* ==========================================================================
+   Utilidades Universales de CSS Grid (Buenas Prácticas para Web Responsive)
+   ========================================================================== */
+.grid-responsive-auto {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+  gap: 1.5rem;
+}
+
+.grid-2-cols {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.5rem;
+}
+
+.grid-3-cols {
+  display: grid;
+  grid-template-columns: repeat(3, 1fr);
+  gap: 1.5rem;
+}
+
+@media (max-width: 768px) {
+  .grid-2-cols,
+  .grid-3-cols {
+    grid-template-columns: 1fr;
+    gap: 1rem;
+  }
+}
