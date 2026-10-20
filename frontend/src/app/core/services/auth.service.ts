@@ -25,6 +25,9 @@ export class AuthService {
   private router = inject(Router);
   private ngZone = inject(NgZone);
 
+  // URL base de la API REST del backend
+  private readonly baseUrl = 'http://localhost:3000/api';
+
   // Constantes de sesión (30 minutos)
   private readonly INACTIVITY_LIMIT_SECONDS = 30 * 60; // 1800s = 30 minutos
   private readonly TOKEN_KEY = 'biotrace_jwt_token';
@@ -67,7 +70,7 @@ export class AuthService {
   login(email: string, password: string): Observable<boolean> {
     this.sessionNotice.set('');
 
-    return this.http.post<AuthResponse>('/api/auth/login', { email, password }).pipe(
+    return this.http.post<AuthResponse>(`${this.baseUrl}/auth/login`, { email, password }).pipe(
       tap((res) => {
         this.saveSession(res.token, res.user);
         this.initInactivityTracker();
@@ -154,7 +157,7 @@ export class AuthService {
     const currentToken = this.token();
     if (!currentToken) return;
 
-    this.http.post<AuthResponse>('/api/auth/refresh', { token: currentToken }).subscribe({
+    this.http.post<AuthResponse>(`${this.baseUrl}/auth/refresh`, { token: currentToken }).subscribe({
       next: (res) => {
         this.lastTokenRefreshTimestamp = Date.now();
         localStorage.setItem(this.TOKEN_KEY, res.token);

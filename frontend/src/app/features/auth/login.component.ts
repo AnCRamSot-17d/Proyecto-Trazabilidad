@@ -187,23 +187,6 @@ import { AuthService } from '../../core/services/auth.service';
               </span>
             </button>
           </form>
-
-          <!-- USUARIO EN BASE DE DATOS (Autocompletar de prueba) -->
-          <div class="demo-single-box">
-            <button
-              type="button"
-              class="demo-single-btn"
-              (click)="fillCredentials('admin@biotrace.com', 'BioTrace2026!')"
-              title="Click para autocompletar credenciales de Administrador en Base de Datos"
-            >
-              <div class="demo-info">
-                <span class="demo-tag">USUARIO EN BASE DE DATOS</span>
-                <span class="demo-name">Administrador (admin&#64;biotrace.com)</span>
-              </div>
-              <span class="demo-arrow">Autocompletar →</span>
-            </button>
-          </div>
-
         </section>
 
       </main>
@@ -512,26 +495,31 @@ import { AuthService } from '../../core/services/auth.service';
 
     .submit-button {
       width: 100%;
-      padding: 0.8rem;
+      height: 48px;
+      min-height: 48px;
+      padding: 0 1.25rem;
       background: #0f172a;
       color: #ffffff;
-      border: none;
+      border: 1px solid rgba(6, 182, 212, 0.35);
       border-radius: 10px;
       font-size: 0.88rem;
       font-weight: 700;
       cursor: pointer;
-      transition: all 0.2s ease;
       display: flex;
       align-items: center;
       justify-content: center;
       box-shadow: 0 4px 12px rgba(15, 23, 42, 0.25);
-      margin-top: 0.35rem;
+      margin-top: 0.5rem;
+      line-height: 1;
+      box-sizing: border-box;
+      user-select: none;
+      transition: background-color 0.2s ease, border-color 0.2s ease, box-shadow 0.2s ease, opacity 0.2s ease;
     }
 
     .submit-button:hover:not(:disabled) {
       background: #1e293b;
-      transform: translateY(-1px);
-      box-shadow: 0 6px 16px rgba(15, 23, 42, 0.35);
+      border-color: #06b6d4;
+      box-shadow: 0 6px 18px rgba(15, 23, 42, 0.4);
     }
 
     .submit-button:disabled {
@@ -540,76 +528,25 @@ import { AuthService } from '../../core/services/auth.service';
     }
 
     .loading-wrap {
-      display: flex;
+      display: inline-flex;
       align-items: center;
-      gap: 0.55rem;
+      justify-content: center;
+      gap: 0.6rem;
+      line-height: 1;
     }
 
     .spinner-circle {
-      width: 15px;
-      height: 15px;
+      width: 16px;
+      height: 16px;
       border: 2px solid rgba(255, 255, 255, 0.25);
       border-top-color: #06b6d4;
       border-radius: 50%;
       animation: spin 0.7s linear infinite;
+      flex-shrink: 0;
     }
 
     @keyframes spin {
       to { transform: rotate(360deg); }
-    }
-
-    /* ======================================================== */
-    /* 5. ÚNICO PERFIL DE PRUEBA RÁPIDA (A LA MEDIDA)           */
-    /* ======================================================== */
-    .demo-single-box {
-      margin-top: 1.35rem;
-      padding-top: 1.15rem;
-      border-top: 1px solid #f1f5f9;
-    }
-
-    .demo-single-btn {
-      width: 100%;
-      background: #f8fafc;
-      border: 1px solid #e2e8f0;
-      padding: 0.65rem 0.85rem;
-      border-radius: 10px;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      transition: all 0.15s ease;
-      text-align: left;
-    }
-
-    .demo-single-btn:hover {
-      background: #ecfeff;
-      border-color: #06b6d4;
-      transform: translateY(-1px);
-    }
-
-    .demo-info {
-      display: flex;
-      flex-direction: column;
-      gap: 0.15rem;
-    }
-
-    .demo-tag {
-      font-size: 0.62rem;
-      font-weight: 800;
-      letter-spacing: 0.06em;
-      color: #0891b2;
-    }
-
-    .demo-name {
-      font-size: 0.76rem;
-      font-weight: 600;
-      color: #0f172a;
-    }
-
-    .demo-arrow {
-      font-size: 0.74rem;
-      font-weight: 700;
-      color: #0891b2;
     }
   `],
 })
@@ -627,14 +564,9 @@ export class LoginComponent {
     this.showPassword.update((v) => !v);
   }
 
-  fillCredentials(email: string, pass: string) {
-    this.email = email;
-    this.password = pass;
-    this.errorMessage.set('');
-    this.auth.sessionNotice.set('');
-  }
-
   handleLogin() {
+    if (this.isLoading()) return;
+
     if (!this.email.trim() || !this.password.trim()) {
       this.errorMessage.set('Por favor ingresa tu usuario institucional y contraseña.');
       return;

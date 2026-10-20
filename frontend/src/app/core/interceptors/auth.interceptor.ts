@@ -13,7 +13,8 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
 
   // Clonar la petición e inyectar cabecera Authorization si existe token
   let authReq = req;
-  if (token && req.url.startsWith('/api')) {
+  const isApiRequest = req.url.includes('/api/') || req.url.startsWith('/api');
+  if (token && isApiRequest) {
     authReq = req.clone({
       setHeaders: {
         Authorization: `Bearer ${token}`,
@@ -24,7 +25,7 @@ export const authInterceptor: HttpInterceptorFn = (req, next) => {
   return next(authReq).pipe(
     catchError((error: HttpErrorResponse) => {
       // Si el servidor responde 401 y no es la petición de login inicial
-      if (error.status === 401 && !req.url.includes('/api/auth/login')) {
+      if (error.status === 401 && !req.url.includes('/auth/login')) {
         auth.logout('Tu sesión ha expirado en el servidor.');
       }
       return throwError(() => error);
