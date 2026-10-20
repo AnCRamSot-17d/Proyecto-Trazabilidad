@@ -3,141 +3,114 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
-  url      = env("DATABASE_URL")
+  provider  = "postgresql"
+  url       = env("DATABASE_URL")
+  directUrl = env("DIRECT_URL")
 }
 
-model Supplier {
-  id    String           @id @default(cuid())
-  name  String
-  email String?          @unique
-  lots  RawMaterialLot[]
+model Pedido {
+  id            String     @id @default(uuid()) @db.Uuid
+  numero_pedido String     @unique
+  cliente_marca String
+  estado        String     @default("PENDIENTE")
+  fecha_pedido  DateTime   @default(now())
+  productos     Producto[]
+
+  @@map("pedidos")
 }
 
-model RawMaterial {
-  id   String           @id @default(cuid())
-  code String           @unique
-  name String
-  unit String
-  lots RawMaterialLot[]
+model Producto {
+  id              String                 @id @default(uuid()) @db.Uuid
+  pedido_id       String?                @db.Uuid
+  codigo_unico    String                 @unique
+  nombre_producto String
+  presentaciones  String?
+  fecha_creacion  DateTime               @default(now())
+  pedido          Pedido?                @relation(fields: [pedido_id], references: [id], onDelete: SetNull)
+  formula         ProductoMateriaPrima[]
+  consumos        ConsumoMateriaPrima[]
+
+  @@map("productos")
 }
 
-model RawMaterialLot {
-  id           String                @id @default(cuid())
-  code         String                @unique
-  materialId   String
-  supplierId   String
-  quantity     Decimal               @db.Decimal(18, 4)
-  receivedAt   DateTime              @default(now())
-  material     RawMaterial           @relation(fields: [materialId], references: [id])
-  supplier     Supplier              @relation(fields: [supplierId], references: [id])
-  consumptions MaterialConsumption[]
-  events       TraceabilityEvent[]
+model MateriaPrima {
+  id                   String                        @id @default(uuid()) @db.Uuid
+  codigo_materia_prima String                        @unique
+  nombre_insumo        String
+  unidad_medida        String
+  inventarios          InventarioMateriaPrima[]
+  formulas             ProductoMateriaPrima[]
+  ingresos             IngresoMateriaPrima[]
+  detalles_consumo     DetalleConsumoMateriaPrima[]
+
+  @@map("materia_prima")
 }
 
-model Product {
-  id     String            @id @default(cuid())
-  code   String            @unique
-  name   String
-  unit   String
-  orders ProductionOrder[]
+model ProductoMateriaPrima {
+  id                      String       @id @default(uuid()) @db.Uuid
+  producto_id             String       @db.Uuid
+  materia_prima_id        String       @db.Uuid
+  porcentaje_o_proporcion Decimal      @db.Decimal(10, 4)
+  producto                Producto     @relation(fields: [producto_id], references: [id], onDelete: Cascade)
+  materia_prima           MateriaPrima @relation(fields: [materia_prima_id], references: [id], onDelete: Restrict)
+
+  @@unique([producto_id, materia_prima_id])
+  @@map("producto_materia_prima")
 }
 
-model ProductionOrder {
-  id           String                @id @default(cuid())
-  code         String                @unique
-  productId    String
-  quantity     Decimal               @db.Decimal(18, 4)
-  createdAt    DateTime              @default(now())
-  product      Product               @relation(fields: [productId], references: [id])
-  consumptions MaterialConsumption[]
-  lots         FinishedProductLot[]
-  events       TraceabilityEvent[]
+model InventarioMateriaPrima {
+  id                  String                        @id @default(uuid()) @db.Uuid
+  materia_prima_id    String                        @db.Uuid
+  lote_interno        String                        @unique
+  stock_disponible    Decimal                       @db.Decimal(12, 4)
+  fecha_actualizacion DateTime                      @default(now())
+  materia_prima       MateriaPrima                  @relation(fields: [materia_prima_id], references: [id], onDelete: Restrict)
+  ingresos            IngresoMateriaPrima[]
+  detalles_consumo    DetalleConsumoMateriaPrima[]
+
+  @@map("inventario_materia_prima")
 }
 
-model MaterialConsumption {
-  id                String          @id @default(cuid())
-  productionOrderId String
-  rawMaterialLotId  String
-  quantity          Decimal         @db.Decimal(18, 4)
-  productionOrder   ProductionOrder @relation(fields: [productionOrderId], references: [id])
-  rawMaterialLot    RawMaterialLot  @relation(fields: [rawMaterialLotId], references: [id])
+model IngresoMateriaPrima {
+  id                String                 @id @default(uuid()) @db.Uuid
+  materia_prima_id  String                 @db.Uuid
+  inventario_id     String                 @db.Uuid
+  lote_proveedor    String
+  cantidad_recibida Decimal                @db.Decimal(12, 4)
+  proveedor         String
+  fecha_ingreso     DateTime               @default(now())
+  materia_prima     MateriaPrima           @relation(fields: [materia_prima_id], references: [id], onDelete: Restrict)
+  inventario        InventarioMateriaPrima @relation(fields: [inventario_id], references: [id], onDelete: Cascade)
 
-  @@unique([productionOrderId, rawMaterialLotId])
-  @@index([rawMaterialLotId])
+  @@map("ingreso_materia_prima")
 }
 
-model FinishedProductLot {
-  id                String              @id @default(cuid())
-  code              String              @unique
-  productionOrderId String
-  quantity          Decimal             @db.Decimal(18, 4)
-  manufacturedAt    DateTime            @default(now())
-  productionOrder   ProductionOrder     @relation(fields: [productionOrderId], references: [id])
-  qualityControls   QualityControl[]
-  movements         InventoryMovement[]
-  shipments         Shipment[]
-  events            TraceabilityEvent[]
+model ConsumoMateriaPrima {
+  id                   String                       @id @default(uuid()) @db.Uuid
+  producto_id          String                       @db.Uuid
+  lote_total_fabricar  Decimal                      @db.Decimal(12, 4)
+  unidad_lote          String
+  fecha_consumo        DateTime                     @default(now())
+  codigo_balanza       String?
+  total_programado     Decimal                      @default(0) @db.Decimal(12, 4)
+  total_real_consumido Decimal                      @default(0) @db.Decimal(12, 4)
+  variacion_diferencia Decimal                      @default(0) @db.Decimal(12, 4)
+  producto             Producto                     @relation(fields: [producto_id], references: [id], onDelete: Restrict)
+  detalles             DetalleConsumoMateriaPrima[]
 
-  @@index([productionOrderId])
+  @@map("consumo_materia_prima")
 }
 
-enum QualityStatus {
-  PENDING
-  APPROVED
-  REJECTED
-}
+model DetalleConsumoMateriaPrima {
+  id                   String                 @id @default(uuid()) @db.Uuid
+  consumo_id           String                 @db.Uuid
+  materia_prima_id     String                 @db.Uuid
+  inventario_id        String                 @db.Uuid
+  cantidad_programada  Decimal                @db.Decimal(12, 4)
+  peso_real_consumido  Decimal                @default(0) @db.Decimal(12, 4)
+  consumo              ConsumoMateriaPrima    @relation(fields: [consumo_id], references: [id], onDelete: Cascade)
+  materia_prima        MateriaPrima           @relation(fields: [materia_prima_id], references: [id], onDelete: Restrict)
+  inventario           InventarioMateriaPrima @relation(fields: [inventario_id], references: [id], onDelete: Restrict)
 
-model QualityControl {
-  id        String             @id @default(cuid())
-  lotId     String
-  status    QualityStatus      @default(PENDING)
-  notes     String?
-  createdAt DateTime           @default(now())
-  lot       FinishedProductLot @relation(fields: [lotId], references: [id])
-
-  @@index([lotId])
-}
-
-enum MovementType {
-  IN
-  OUT
-}
-
-model InventoryMovement {
-  id        String             @id @default(cuid())
-  lotId     String
-  type      MovementType
-  quantity  Decimal            @db.Decimal(18, 4)
-  createdAt DateTime           @default(now())
-  lot       FinishedProductLot @relation(fields: [lotId], references: [id])
-
-  @@index([lotId])
-}
-
-model Shipment {
-  id          String             @id @default(cuid())
-  lotId       String
-  destination String
-  quantity    Decimal            @db.Decimal(18, 4)
-  shippedAt   DateTime           @default(now())
-  lot         FinishedProductLot @relation(fields: [lotId], references: [id])
-
-  @@index([lotId])
-}
-
-model TraceabilityEvent {
-  id                   String              @id @default(cuid())
-  type                 String
-  rawMaterialLotId     String?
-  productionOrderId    String?
-  finishedProductLotId String?
-  createdAt            DateTime            @default(now())
-  rawMaterialLot       RawMaterialLot?     @relation(fields: [rawMaterialLotId], references: [id])
-  productionOrder      ProductionOrder?    @relation(fields: [productionOrderId], references: [id])
-  finishedProductLot   FinishedProductLot? @relation(fields: [finishedProductLotId], references: [id])
-
-  @@index([rawMaterialLotId])
-  @@index([productionOrderId])
-  @@index([finishedProductLotId])
+  @@map("detalle_consumo_materia_prima")
 }

@@ -19,7 +19,7 @@ export class ProductionOrderService {
 
     // Transacción serializable para control estricto de concurrencia y stock
     return db.$transaction(
-      async (tx) => {
+      async (tx: any) => {
         for (const consumption of consumptions) {
           const lot = await tx.rawMaterialLot.findUnique({
             where: { id: consumption.rawMaterialLotId },
@@ -31,7 +31,7 @@ export class ProductionOrderService {
           }
 
           const used = lot.consumptions.reduce(
-            (sum, c) => sum.add(c.quantity),
+            (sum: any, c: any) => sum.add(c.quantity),
             new Prisma.Decimal(0)
           );
 
