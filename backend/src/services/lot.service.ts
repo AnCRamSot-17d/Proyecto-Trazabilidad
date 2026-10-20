@@ -11,7 +11,7 @@ export class LotService {
 
   async create(data: LotInput) {
     return db.$transaction(
-      async (tx) => {
+      async (tx: any) => {
         const order = await tx.productionOrder.findUnique({
           where: { id: data.productionOrderId },
           include: { lots: true },
@@ -22,7 +22,7 @@ export class LotService {
         }
 
         const produced = order.lots.reduce(
-          (sum, lot) => sum.add(lot.quantity),
+          (sum: any, lot: any) => sum.add(lot.quantity),
           new Prisma.Decimal(0)
         );
 
