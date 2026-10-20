@@ -2,6 +2,7 @@ import { Component, OnInit, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { ApiService } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
+import { UiStateService } from '../../core/services/ui-state.service';
 
 @Component({
   selector: 'app-navbar',
@@ -9,18 +10,35 @@ import { AuthService } from '../../core/services/auth.service';
   imports: [CommonModule],
   template: `
     <header class="navbar" *ngIf="auth.isAuthenticated()">
-      <div class="navbar-brand">
-        <div class="brand-logo">
-          <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
-            <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="#06b6d4" />
-            <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="#ffffff" />
-            <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="#06b6d4" />
-            <path d="M10 6.5h4M17.5 10v4M6.5 10v7.5a1 1 0 0 0 1 1H14" stroke="#06b6d4" stroke-linecap="round" />
+      <div class="navbar-left">
+        <!-- Botón Interactivo de Menú Lateral -->
+        <button
+          type="button"
+          class="sidebar-menu-btn"
+          (click)="ui.toggleSidebar()"
+          [title]="ui.sidebarExpanded() ? 'Ocultar menú lateral' : 'Mostrar menú lateral'"
+          aria-label="Alternar menú lateral"
+        >
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="3" y1="12" x2="21" y2="12"></line>
+            <line x1="3" y1="6" x2="21" y2="6"></line>
+            <line x1="3" y1="18" x2="21" y2="18"></line>
           </svg>
-        </div>
-        <div class="brand-text">
-          <span class="brand-name">BioTrace</span>
-          <span class="brand-sub">DERMOCOSMÉTICA & FARMACÉUTICA</span>
+        </button>
+
+        <div class="navbar-brand">
+          <div class="brand-logo">
+            <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5">
+              <rect x="3" y="3" width="7" height="7" rx="1.5" stroke="#06b6d4" />
+              <rect x="14" y="3" width="7" height="7" rx="1.5" stroke="#ffffff" />
+              <rect x="14" y="14" width="7" height="7" rx="1.5" stroke="#06b6d4" />
+              <path d="M10 6.5h4M17.5 10v4M6.5 10v7.5a1 1 0 0 0 1 1H14" stroke="#06b6d4" stroke-linecap="round" />
+            </svg>
+          </div>
+          <div class="brand-text">
+            <span class="brand-name">BioTrace</span>
+            <span class="brand-sub">DERMOCOSMÉTICA & FARMACÉUTICA</span>
+          </div>
         </div>
       </div>
 
@@ -63,11 +81,35 @@ import { AuthService } from '../../core/services/auth.service';
       height: 68px;
       background: #ffffff;
       border-bottom: 1px solid #e2e8f0;
-      padding: 0 2.5rem;
+      padding: 0 1.75rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
       box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+    }
+    .navbar-left {
+      display: flex;
+      align-items: center;
+      gap: 1.15rem;
+    }
+    .sidebar-menu-btn {
+      width: 38px;
+      height: 38px;
+      border-radius: 9px;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      color: #334155;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+    }
+    .sidebar-menu-btn:hover {
+      background: #ecfeff;
+      border-color: #06b6d4;
+      color: #0891b2;
+      box-shadow: 0 0 8px rgba(6, 182, 212, 0.25);
     }
     .navbar-brand {
       display: flex;
@@ -208,6 +250,7 @@ import { AuthService } from '../../core/services/auth.service';
 export class NavbarComponent implements OnInit {
   private api = inject(ApiService);
   auth = inject(AuthService);
+  ui = inject(UiStateService);
   isOnline = signal<boolean>(false);
 
   ngOnInit() {
