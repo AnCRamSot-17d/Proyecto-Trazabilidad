@@ -34,6 +34,10 @@ Este documento resume las reglas indispensables, directrices de diseño y arquit
 - **Control de Inactividad**: El cliente monitorea interacción del usuario (`mousemove`, `keydown`, `click`, etc.). Si pasan **30 minutos sin actividad**, se cierra la sesión automáticamente (`logout()`).
 - **Uso Continuo**: Si el usuario sigue activo, el temporizador se reinicia a `30:00` y el token se renueva en segundo plano (`POST /api/auth/refresh`).
 - **Visualizador en Vivo**: El navbar cuenta con una píldora que muestra el tiempo restante en vivo (ej. `29:58 min`).
+- **Usuario en Base de Datos (Prisma `Usuario`)**:
+  - Correo: `admin@biotrace.com`
+  - Contraseña: `BioTrace2026!`
+  - Rol: `ADMINISTRADOR` (`Estación Central de Control y Liberación`)
 
 ---
 

@@ -74,6 +74,10 @@ Todo el diseño debe emplear **CSS Grid** como estándar de diagramación para g
 3. **Renovación Activa (`POST /api/auth/refresh`)**: Si el usuario se mantiene interactuando, el token se renueva en segundo plano para no interrumpir su trabajo.
 4. **Interceptor HTTP**: [auth.interceptor.ts](file:///c:/Users/masterdent-soft/Downloads/Proyecto-Trazabilidad/frontend/src/app/core/interceptors/auth.interceptor.ts) inyecta `Authorization: Bearer <token>` y captura códigos 401.
 5. **Guard Funcional**: [auth.guard.ts](file:///c:/Users/masterdent-soft/Downloads/Proyecto-Trazabilidad/frontend/src/app/core/guards/auth.guard.ts) protege rutas internas.
+6. **Persistencia en Base de Datos (Modelo `Usuario`)**:
+   - Modelo Prisma `Usuario` mapeado a la tabla `usuarios` en PostgreSQL/Neon.
+   - Usuario de acceso oficial: `admin@biotrace.com` / `BioTrace2026!` (Rol `ADMINISTRADOR`).
+   - Se eliminaron por completo los perfiles ficticios/anteriores (`director@biotrace.com`).
 
 ---
 

@@ -114,3 +114,16 @@ model DetalleConsumoMateriaPrima {
 
   @@map("detalle_consumo_materia_prima")
 }
+
+model Usuario {
+  id             String   @id @default(uuid()) @db.Uuid
+  email          String   @unique
+  nombre         String
+  password       String
+  rol            String   @default("ADMINISTRADOR")
+  estacion       String?  @default("Estación Principal de Control")
+  activo         Boolean  @default(true)
+  fecha_creacion DateTime @default(now())
+
+  @@map("usuarios")
+}

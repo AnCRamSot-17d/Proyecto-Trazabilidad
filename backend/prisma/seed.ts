@@ -1,15 +1,49 @@
 import { PrismaClient } from '@prisma/client';
+
 const db = new PrismaClient();
+
 async function main() {
-  await db.$transaction(async tx => {
-    // Stable IDs make repeated runs non-destructive.
-    const supplier = await tx.supplier.upsert({ where: { id: 'demo-supplier' }, update: {}, create: { id: 'demo-supplier', name: 'Insumos Académicos SAS', email: 'demo@example.com' } });
-    const material = await tx.rawMaterial.upsert({ where: { code: 'DEMO-SILICA' }, update: {}, create: { code: 'DEMO-SILICA', name: 'Sílice', unit: 'kg' } });
-    const raw = await tx.rawMaterialLot.upsert({ where: { code: 'DEMO-MP-001' }, update: {}, create: { code: 'DEMO-MP-001', supplierId: supplier.id, materialId: material.id, quantity: 100, events: { create: { type: 'RECEIVED' } } } });
-    const product = await tx.product.upsert({ where: { code: 'DEMO-PASTA' }, update: {}, create: { code: 'DEMO-PASTA', name: 'Crema dental académica', unit: 'unidad' } });
-    const order = await tx.productionOrder.upsert({ where: { code: 'DEMO-OP-001' }, update: {}, create: { code: 'DEMO-OP-001', productId: product.id, quantity: 200, consumptions: { create: { rawMaterialLotId: raw.id, quantity: 20 } }, events: { create: { type: 'MATERIAL_CONSUMED', rawMaterialLotId: raw.id } } } });
-    await tx.finishedProductLot.upsert({ where: { code: 'DEMO-PT-001' }, update: {}, create: { code: 'DEMO-PT-001', productionOrderId: order.id, quantity: 200, qualityControls: { create: { status: 'APPROVED', notes: 'Control ficticio académico' } }, movements: { create: [{ type: 'IN', quantity: 200 }, { type: 'OUT', quantity: 50 }] }, shipments: { create: { destination: 'Bodega académica Bogotá', quantity: 50 } }, events: { create: [{ type: 'MANUFACTURED', productionOrderId: order.id }, { type: 'QUALITY_APPROVED' }, { type: 'SHIPPED' }] } } });
+  console.log('Iniciando seed de base de datos...');
+
+  // 1. Creación del usuario administrador oficial en la base de datos
+  const adminUser = await db.usuario.upsert({
+    where: { email: 'admin@biotrace.com' },
+    update: {
+      nombre: 'Ing. Administrador de Trazabilidad',
+      password: 'BioTrace2026!',
+      rol: 'ADMINISTRADOR',
+      estacion: 'Estación Central de Control y Liberación',
+      activo: true,
+    },
+    create: {
+      email: 'admin@biotrace.com',
+      nombre: 'Ing. Administrador de Trazabilidad',
+      password: 'BioTrace2026!',
+      rol: 'ADMINISTRADOR',
+      estacion: 'Estación Central de Control y Liberación',
+      activo: true,
+    },
   });
-  console.log('Seed académico listo');
+
+  console.log('✅ Usuario creado en base de datos:', adminUser.email);
+
+  // 2. Materia prima de prueba
+  const materiaPrima = await db.materiaPrima.upsert({
+    where: { codigo_materia_prima: 'MP-AC-HIALURONICO' },
+    update: {},
+    create: {
+      codigo_materia_prima: 'MP-AC-HIALURONICO',
+      nombre_insumo: 'Ácido Hialurónico Puro 98%',
+      unidad_medida: 'kg',
+    },
+  });
+
+  console.log('✅ Materia prima inicial lista:', materiaPrima.nombre_insumo);
 }
-main().catch(error => { console.error(error); process.exitCode = 1; }).finally(() => db.$disconnect());
+
+main()
+  .catch((error) => {
+    console.error('Error durante el seed:', error);
+    process.exitCode = 1;
+  })
+  .finally(() => db.$disconnect());

@@ -2,6 +2,7 @@ import jwt from 'jsonwebtoken';
 import { JWT_CONFIG } from '../config/jwt.js';
 import { HttpError } from '../types/errors.js';
 import { LoginInput } from '../schemas/auth.schema.js';
+import { db } from '../config/db.js';
 
 export interface AuthUser {
   id: string;
@@ -18,56 +19,78 @@ export interface AuthResponse {
 }
 
 /**
- * Usuarios demo precargados para auditorías y pruebas académicas en Dermo-Cosmética & Farma
+ * Usuario administrador oficial del sistema
  */
-const SYSTEM_USERS: (AuthUser & { passwordHash: string })[] = [
-  {
-    id: 'USR-DIR-01',
-    email: 'director@biotrace.com',
-    name: 'Dra. Elena Vasquez',
-    role: 'Director Técnico (Dermo-Cosmética)',
-    station: 'Estación Principal de Control y Liberación',
-    passwordHash: 'DermoPharma2026!',
-  },
-  {
-    id: 'USR-AUD-02',
-    email: 'auditor.calidad@biotrace.com',
-    name: 'Lic. Carlos Mendoza',
-    role: 'Auditor Calidad & GMP',
-    station: 'Laboratorio de Aseguramiento de Calidad',
-    passwordHash: 'CalidadGMP2026!',
-  },
-  {
-    id: 'USR-FORM-03',
-    email: 'formulador@biotrace.com',
-    name: 'Ing. Sofia Morales',
-    role: 'Especialista en Formulación Magistral',
-    station: 'Área de Reactores y Mezclas Limpias',
-    passwordHash: 'Formulacion2026!',
-  },
-];
+const DEFAULT_ADMIN_USER: AuthUser & { passwordHash: string } = {
+  id: 'USR-ADMIN-01',
+  email: 'admin@biotrace.com',
+  name: 'Ing. Administrador de Trazabilidad',
+  role: 'ADMINISTRADOR',
+  station: 'Estación Central de Control y Liberación',
+  passwordHash: 'BioTrace2026!',
+};
 
 export class AuthService {
   /**
-   * Autenticación con verificación de credenciales y generación de JWT de 30 minutos
+   * Autenticación con verificación en base de datos PostgreSQL y generación de JWT de 30 minutos
    */
   async login(credentials: LoginInput): Promise<AuthResponse> {
-    const userFound = SYSTEM_USERS.find(
-      (u) => u.email.toLowerCase() === credentials.email.toLowerCase()
-    );
+    const emailNormalized = credentials.email.toLowerCase().trim();
+    let authUser: AuthUser | null = null;
 
-    if (!userFound || userFound.passwordHash !== credentials.password) {
+    try {
+      // 1. Intento de consulta en base de datos real (Neon PostgreSQL)
+      const dbUser = await db.usuario.findUnique({
+        where: { email: emailNormalized },
+      });
+
+      if (dbUser) {
+        if (!dbUser.activo) {
+          throw new HttpError(403, 'El usuario se encuentra inactivo en la base de datos.');
+        }
+
+        if (dbUser.password !== credentials.password) {
+          throw new HttpError(401, 'Credenciales inválidas. Verifique su correo institucional y contraseña.');
+        }
+
+        authUser = {
+          id: dbUser.id,
+          email: dbUser.email,
+          name: dbUser.nombre,
+          role: dbUser.rol,
+          station: dbUser.estacion || 'Estación Central de Control',
+        };
+      }
+    } catch (dbError: any) {
+      // Si el error es de credenciales inválidas o usuario inactivo, propagarlo directamente
+      if (dbError instanceof HttpError) {
+        throw dbError;
+      }
+      // Si la base de datos no está disponible temporalmente, registrar aviso
+      console.warn('Base de datos no disponible para consulta de usuario, evaluando usuario fallback:', dbError.message);
+    }
+
+    // 2. Si la base de datos no está conectada o no retornó usuario, evaluar usuario por defecto
+    if (!authUser) {
+      if (
+        emailNormalized === DEFAULT_ADMIN_USER.email.toLowerCase() &&
+        credentials.password === DEFAULT_ADMIN_USER.passwordHash
+      ) {
+        authUser = {
+          id: DEFAULT_ADMIN_USER.id,
+          email: DEFAULT_ADMIN_USER.email,
+          name: DEFAULT_ADMIN_USER.name,
+          role: DEFAULT_ADMIN_USER.role,
+          station: DEFAULT_ADMIN_USER.station,
+        };
+      }
+    }
+
+    if (!authUser) {
       throw new HttpError(401, 'Credenciales inválidas. Verifique su correo institucional y contraseña.');
     }
 
-    const authUser: AuthUser = {
-      id: userFound.id,
-      email: userFound.email,
-      name: userFound.name,
-      role: userFound.role,
-      station: userFound.station,
-    };
-
+    // 3. Firma de token JWT con validez estricta de 30 minutos
     const token = jwt.sign(authUser, JWT_CONFIG.secret, {
       expiresIn: '30m',
     });

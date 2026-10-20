@@ -188,17 +188,17 @@ import { AuthService } from '../../core/services/auth.service';
             </button>
           </form>
 
-          <!-- ÚNICO PERFIL DE PRUEBA RÁPIDA (Limpio y Compacto) -->
+          <!-- USUARIO EN BASE DE DATOS (Autocompletar de prueba) -->
           <div class="demo-single-box">
             <button
               type="button"
               class="demo-single-btn"
-              (click)="fillCredentials('director@biotrace.com', 'DermoPharma2026!')"
-              title="Click para autocompletar credenciales de Director Técnico"
+              (click)="fillCredentials('admin@biotrace.com', 'BioTrace2026!')"
+              title="Click para autocompletar credenciales de Administrador en Base de Datos"
             >
               <div class="demo-info">
-                <span class="demo-tag">PERFIL DE PRUEBA</span>
-                <span class="demo-name">Director Técnico (director&#64;biotrace.com)</span>
+                <span class="demo-tag">USUARIO EN BASE DE DATOS</span>
+                <span class="demo-name">Administrador (admin&#64;biotrace.com)</span>
               </div>
               <span class="demo-arrow">Autocompletar →</span>
             </button>
