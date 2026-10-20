@@ -53,3 +53,13 @@ Este documento resume las reglas indispensables, directrices de diseño y arquit
 Solo se requieren dos comandos directos (sin Docker):
 1. **Backend**: `cd backend && npm run dev` (API en `http://localhost:3000/api`)
 2. **Frontend**: `cd frontend && npm run dev` (Cliente en `http://localhost:4200`)
+
+---
+
+## 🛑 6. Regla Estricta de Control de Versiones (Git & GitHub)
+
+- **CERO PUSH AUTOMÁTICO**: Está terminantemente prohibido hacer `git commit` o `git push` a GitHub por iniciativa propia.
+- **Autorización Explícita**: Los cambios solo se confirman y se suben al repositorio remoto **ÚNICAMENTE** cuando el usuario lo ordene de manera explícita en el chat (ej. *"sube los cambios"*, *"haz push"*). Mientras tanto, todo el trabajo se desarrolla y valida localmente.
+- **Mensajes de Commit Humanos y Básicos**: Las descripciones de los commits deben ser cortas, directas, en español y con lenguaje natural cotidiano (ej. `organizar menu lateral`, `ajustar login`, `agregar modulo materias primas`). Quedan prohibidos los textos largos o sobrecargados que parezcan redactados por una IA.
+
+

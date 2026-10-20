@@ -170,3 +170,15 @@ cd frontend
 npm run dev
 # Aplicación web en http://localhost:4200
 ```
+
+---
+
+## 9. Política Estricta de Git y GitHub
+
+> ⚠️ **REGLA ABSOLUTA DE CONTROL DE VERSIONES**:
+> - **PROHIBIDO realizar `git commit` o `git push` de forma automática o por iniciativa propia**.
+> - Todo trabajo se realiza, prueba y compila localmente.
+> - Solo se confirmarán y enviarán cambios al repositorio remoto (`origin/front-back` o `origin/main`) **cuando el usuario lo solicite expresamente en el chat**.
+> - **Mensajes de Commit Humanos y Básicos**: Las descripciones deben ser breves, sencillas, en español y con redacción natural (ej. `organizar menu lateral`, `ajustar login`, `agregar modulo materias primas`). Quedan prohibidos los mensajes largos, técnicos en exceso o que parezcan generados por IA.
+
+

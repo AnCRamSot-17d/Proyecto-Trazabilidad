@@ -1,674 +1,838 @@
-import { Component, inject, signal, computed } from '@angular/core';
+import { Component, inject, signal } from '@angular/core';
 import { CommonModule } from '@angular/common';
-import { FormsModule } from '@angular/forms';
 import { Router } from '@angular/router';
 import { UiStateService, SubViewTab } from '../../core/services/ui-state.service';
 import { AuthService } from '../../core/services/auth.service';
 
-interface SubStation {
-  key: string;
-  label: string;
-  hasTabs?: boolean;
-}
-
-interface ModuleGroup {
-  key: string;
-  title: string;
-  iconSvg: string;
-  subStations: SubStation[];
-}
-
 @Component({
   selector: 'app-sidebar',
   standalone: true,
-  imports: [CommonModule, FormsModule],
+  imports: [CommonModule],
   template: `
     <aside
-      class="sidebar-master"
-      [class.sidebar--collapsed]="!ui.sidebarExpanded()"
+      class="lap-portal-sidebar"
+      [class.lap-portal-sidebar--open]="ui.sidebarExpanded()"
+      [class.lap-portal-sidebar--closed]="!ui.sidebarExpanded()"
       *ngIf="auth.isAuthenticated()"
     >
-      <!-- Encabezado del Menú Lateral -->
-      <div class="sidebar-header">
-        <div class="brand-mini" *ngIf="ui.sidebarExpanded()">
-          <span class="brand-tag">NAVEGACIÓN INDUSTRIAL</span>
-          <span class="brand-title">Módulos & Estaciones</span>
-        </div>
-
-        <!-- Botón interactivo de colapsar / expandir -->
-        <button
-          type="button"
-          class="collapse-toggle-btn"
-          (click)="ui.toggleSidebar()"
-          [title]="ui.sidebarExpanded() ? 'Plegar menú lateral' : 'Desplegar menú lateral'"
-          aria-label="Alternar menú lateral"
-        >
-          <svg
-            width="18"
-            height="18"
-            viewBox="0 0 24 24"
-            fill="none"
-            stroke="currentColor"
-            stroke-width="2"
-            [style.transform]="ui.sidebarExpanded() ? 'rotate(0deg)' : 'rotate(180deg)'"
-            class="toggle-arrow"
-          >
-            <polyline points="11 17 6 12 11 7"></polyline>
-            <polyline points="18 17 13 12 18 7"></polyline>
-          </svg>
-        </button>
-      </div>
-
-      <!-- Buscador rápido dentro del árbol (solo en modo expandido) -->
-      <div class="sidebar-search-box" *ngIf="ui.sidebarExpanded()">
-        <div class="search-input-wrapper">
-          <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" class="search-icon">
-            <circle cx="11" cy="11" r="8"></circle>
-            <line x1="21" y1="21" x2="16.65" y2="16.65"></line>
-          </svg>
-          <input
-            type="text"
-            [(ngModel)]="searchFilter"
-            placeholder="Buscar estación o ventana..."
-            class="sidebar-search-input"
-          />
-          <button
-            *ngIf="searchFilter"
-            (click)="searchFilter = ''"
-            class="clear-search-btn"
-            title="Limpiar búsqueda"
-          >
-            ✕
-          </button>
-        </div>
-      </div>
-
-      <!-- Contenedor con Scroll Suave de Módulos y Estaciones -->
-      <nav class="sidebar-content">
+      <div class="lap-portal-sidebar__content">
         
         <!-- ============================================== -->
-        <!-- 1. BOTÓN PRINCIPAL: PANEL DE CONTROL / INICIO -->
+        <!-- 1. BOTÓN SUPERIOR: PANEL PRINCIPAL (INICIO)   -->
         <!-- ============================================== -->
-        <button
-          type="button"
-          (click)="selectModule('inicio')"
-          class="nav-root-item"
-          [class.nav-root-item--active]="ui.activeModule() === 'inicio'"
-          title="Panel Principal"
-        >
-          <div class="item-icon-box">
+        <div class="lap-portal-sidebar__nav">
+          <button
+            type="button"
+            (click)="selectModule('inicio')"
+            class="lap-sidebar-nav-item"
+            [class.lap-sidebar-nav-item--active]="ui.activeModule() === 'inicio'"
+            title="Inicio"
+          >
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
               <path d="M3 9l9-7 9 7v11a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2z"></path>
               <polyline points="9 22 9 12 15 12 15 22"></polyline>
             </svg>
-          </div>
-          <span class="item-label" *ngIf="ui.sidebarExpanded()">Panel Principal</span>
-          <span class="active-glow-pip" *ngIf="ui.activeModule() === 'inicio'"></span>
-        </button>
-
-        <div class="section-divider" *ngIf="ui.sidebarExpanded()">
-          <span>ESTACIONES DE TRAZABILIDAD</span>
-        </div>
-
-        <!-- ============================================== -->
-        <!-- MÓDULOS AGRUPADOS (ACORDEÓN INTERACTIVO)       -->
-        <!-- ============================================== -->
-        <div class="module-group" *ngFor="let group of filteredGroups()">
-          
-          <!-- Encabezado del Grupo (Botón Interactivo Acordeón) -->
-          <button
-            type="button"
-            class="group-header-btn"
-            [class.group-header-btn--active]="isGroupActive(group.key)"
-            (click)="toggleGroup(group.key)"
-            [title]="group.title"
-          >
-            <div class="header-left">
-              <span class="group-icon" [innerHTML]="group.iconSvg"></span>
-              <span class="group-title" *ngIf="ui.sidebarExpanded()">{{ group.title }}</span>
-            </div>
-
-            <svg
-              *ngIf="ui.sidebarExpanded()"
-              width="14"
-              height="14"
-              viewBox="0 0 24 24"
-              fill="none"
-              stroke="currentColor"
-              stroke-width="2"
-              class="chevron-indicator"
-              [class.chevron--expanded]="isGroupOpen(group.key)"
-            >
-              <polyline points="6 9 12 15 18 9"></polyline>
-            </svg>
+            <span *ngIf="ui.sidebarExpanded()">Panel Principal</span>
           </button>
+        </div>
 
-          <!-- Sub-estaciones desplegables (Solo si está abierto y expandido) -->
-          <div class="group-children" *ngIf="ui.sidebarExpanded() && isGroupOpen(group.key)">
-            
-            <div class="substation-block" *ngFor="let sub of group.subStations">
+        <!-- ============================================== -->
+        <!-- MODO EXPANDIDO: ÁRBOL DE MENÚS Y ACORDEONES   -->
+        <!-- ============================================== -->
+        <div *ngIf="ui.sidebarExpanded()" class="lap-sidebar-nav">
+          
+          <!-- SECCIÓN: ESTACIONES -->
+          <span class="lap-sidebar-section-title">Estaciones</span>
+
+          <!-- GRAN MENÚ 1: ESTACIONES / PRODUCCIÓN -->
+          <div class="lap-sidebar-station-group lap-sidebar-master-group">
+            <button
+              type="button"
+              (click)="toggleEstaciones()"
+              class="lap-sidebar-station-header lap-sidebar-master-header"
+              [class.lap-sidebar-master-header--open]="openEstaciones()"
+              title="Estaciones de Producción"
+            >
+              <div class="lap-sidebar-station-header__left">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"></path>
+                  <path d="M17 18h1"></path>
+                  <path d="M12 18h1"></path>
+                  <path d="M7 18h1"></path>
+                </svg>
+                <span class="lap-sidebar-master-header__text">ESTACIONES</span>
+              </div>
+              <svg *ngIf="openEstaciones()" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+              <svg *ngIf="!openEstaciones()" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+
+            <!-- CONTENEDOR ANIDADO DE ESTACIONES -->
+            <div class="lap-sidebar-nested-container" *ngIf="openEstaciones()">
               
-              <!-- Título de la sub-estación -->
-              <div class="substation-title-row">
-                <span class="substation-bullet"></span>
-                <span class="substation-name">{{ sub.label }}</span>
-              </div>
-
-              <!-- Botones Interactivos de Ventana: Llenar Formato vs Ver Registros -->
-              <div class="action-buttons-grid" *ngIf="sub.hasTabs !== false">
+              <!-- SUBMENÚ: MATERIAS PRIMAS -->
+              <div class="lap-sidebar-station-group">
                 <button
                   type="button"
-                  class="action-subitem-btn"
-                  [class.action-subitem--active]="ui.activeModule() === sub.key && ui.activeTab() === 'form'"
-                  (click)="selectSubStation(sub.key, 'form')"
-                  title="Abrir formulario para registrar nuevo elemento"
+                  (click)="toggleSubmenu('materias-primas')"
+                  class="lap-sidebar-station-header lap-sidebar-subgroup-header"
+                  [class.lap-sidebar-subgroup-header--active]="openSubmenus()['materias-primas']"
+                  title="Materias Primas"
                 >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
-                    <polyline points="14 2 14 8 20 8"></polyline>
-                    <line x1="12" y1="18" x2="12" y2="12"></line>
-                    <line x1="9" y1="15" x2="15" y2="15"></line>
+                  <div class="lap-sidebar-station-header__left">
+                    <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                      <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
+                      <line x1="12" y1="22.08" x2="12" y2="12"></line>
+                    </svg>
+                    <span>Materias Primas</span>
+                  </div>
+                  <svg *ngIf="openSubmenus()['materias-primas']" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
                   </svg>
-                  <span>Llenar formato</span>
+                  <svg *ngIf="!openSubmenus()['materias-primas']" width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
                 </button>
 
-                <button
-                  type="button"
-                  class="action-subitem-btn"
-                  [class.action-subitem--active]="ui.activeModule() === sub.key && ui.activeTab() === 'list'"
-                  (click)="selectSubStation(sub.key, 'list')"
-                  title="Ver tabla y registros históricos"
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <circle cx="12" cy="12" r="10"></circle>
-                    <polyline points="12 6 12 12 16 14"></polyline>
-                  </svg>
-                  <span>Ver registros</span>
-                </button>
-              </div>
+                <!-- SUB-ESTACIONES ANIDADAS DE MATERIAS PRIMAS -->
+                <div class="lap-sidebar-submenu lap-sidebar-nested-substations" *ngIf="openSubmenus()['materias-primas']">
+                  
+                  <!-- 1. INGRESO DE MATERIAS PRIMAS -->
+                  <div class="lap-sidebar-station-group">
+                    <button
+                      type="button"
+                      (click)="toggleInnerSection('mp-ingreso')"
+                      class="lap-sidebar-station-header lap-sidebar-station-header--sub"
+                      [class.lap-sidebar-station-header--active]="ui.activeModule() === 'mp-ingreso'"
+                      title="Ingreso de Materias Primas"
+                    >
+                      <div class="lap-sidebar-station-header__left">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M16 16h6"></path>
+                          <path d="M19 13v6"></path>
+                          <path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"></path>
+                          <polyline points="3.29 7 12 12 20.71 7"></polyline>
+                          <line x1="12" y1="22" x2="12" y2="12"></line>
+                        </svg>
+                        <span>Ingreso</span>
+                      </div>
+                      <svg *ngIf="openInnerSections()['mp-ingreso']" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                      <svg *ngIf="!openInnerSections()['mp-ingreso']" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
+                    </button>
 
-              <!-- Botón Directo para módulos sin pestañas de form/list -->
-              <div class="action-direct-box" *ngIf="sub.hasTabs === false">
-                <button
-                  type="button"
-                  class="action-direct-btn"
-                  [class.action-subitem--active]="ui.activeModule() === sub.key"
-                  (click)="selectSubStation(sub.key, 'list')"
-                >
-                  <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-                    <line x1="8" y1="6" x2="21" y2="6"></line>
-                    <line x1="8" y1="12" x2="21" y2="12"></line>
-                    <line x1="8" y1="18" x2="21" y2="18"></line>
-                    <line x1="3" y1="6" x2="3.01" y2="6"></line>
-                    <line x1="3" y1="12" x2="3.01" y2="12"></line>
-                    <line x1="3" y1="18" x2="3.01" y2="18"></line>
-                  </svg>
-                  <span>Consultar</span>
-                </button>
+                    <!-- Pestañas Ingreso: Llenar formato & Ver registros -->
+                    <div class="lap-sidebar-submenu lap-sidebar-submenu--sub" *ngIf="openInnerSections()['mp-ingreso']">
+                      <button
+                        type="button"
+                        (click)="selectSubStation('mp-ingreso', 'form')"
+                        class="lap-sidebar-subitem"
+                        [class.lap-sidebar-subitem--active]="ui.activeModule() === 'mp-ingreso' && ui.activeTab() === 'form'"
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                          <polyline points="14 2 14 8 20 8"></polyline>
+                          <line x1="16" y1="13" x2="8" y2="13"></line>
+                          <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg>
+                        <span>Llenar formato</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        (click)="selectSubStation('mp-ingreso', 'list')"
+                        class="lap-sidebar-subitem"
+                        [class.lap-sidebar-subitem--active]="ui.activeModule() === 'mp-ingreso' && ui.activeTab() === 'list'"
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <span>Ver registros</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- 2. CONSUMO DE MATERIAS PRIMAS -->
+                  <div class="lap-sidebar-station-group">
+                    <button
+                      type="button"
+                      (click)="toggleInnerSection('mp-consumo')"
+                      class="lap-sidebar-station-header lap-sidebar-station-header--sub"
+                      [class.lap-sidebar-station-header--active]="ui.activeModule() === 'mp-consumo'"
+                      title="Consumo de Materias Primas"
+                    >
+                      <div class="lap-sidebar-station-header__left">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M16 16h6"></path>
+                          <path d="M21 10V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l2-1.14"></path>
+                          <polyline points="3.29 7 12 12 20.71 7"></polyline>
+                          <line x1="12" y1="22" x2="12" y2="12"></line>
+                        </svg>
+                        <span>Consumo</span>
+                      </div>
+                      <svg *ngIf="openInnerSections()['mp-consumo']" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="6 9 12 15 18 9"></polyline>
+                      </svg>
+                      <svg *ngIf="!openInnerSections()['mp-consumo']" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <polyline points="9 18 15 12 9 6"></polyline>
+                      </svg>
+                    </button>
+
+                    <!-- Pestañas Consumo: Llenar formato & Ver registros -->
+                    <div class="lap-sidebar-submenu lap-sidebar-submenu--sub" *ngIf="openInnerSections()['mp-consumo']">
+                      <button
+                        type="button"
+                        (click)="selectSubStation('mp-consumo', 'form')"
+                        class="lap-sidebar-subitem"
+                        [class.lap-sidebar-subitem--active]="ui.activeModule() === 'mp-consumo' && ui.activeTab() === 'form'"
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                          <polyline points="14 2 14 8 20 8"></polyline>
+                          <line x1="16" y1="13" x2="8" y2="13"></line>
+                          <line x1="16" y1="17" x2="8" y2="17"></line>
+                        </svg>
+                        <span>Llenar formato</span>
+                      </button>
+
+                      <button
+                        type="button"
+                        (click)="selectSubStation('mp-consumo', 'list')"
+                        class="lap-sidebar-subitem"
+                        [class.lap-sidebar-subitem--active]="ui.activeModule() === 'mp-consumo' && ui.activeTab() === 'list'"
+                      >
+                        <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <polyline points="12 6 12 12 16 14"></polyline>
+                        </svg>
+                        <span>Ver registros</span>
+                      </button>
+                    </div>
+                  </div>
+
+                  <!-- 3. INVENTARIO Y STOCK -->
+                  <div class="lap-sidebar-station-group">
+                    <button
+                      type="button"
+                      (click)="selectSubStation('mp-inventario', 'list')"
+                      class="lap-sidebar-station-header lap-sidebar-station-header--sub"
+                      [class.lap-sidebar-station-header--active]="ui.activeModule() === 'mp-inventario'"
+                      title="Inventario y Stock de Materias Primas"
+                    >
+                      <div class="lap-sidebar-station-header__left">
+                        <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                          <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                          <polyline points="2 17 12 22 22 17"></polyline>
+                          <polyline points="2 12 12 17 22 12"></polyline>
+                        </svg>
+                        <span>Inventario y Stock</span>
+                      </div>
+                    </button>
+                  </div>
+
+                </div>
               </div>
 
             </div>
+          </div>
 
+          <!-- SECCIÓN: GESTIÓN COMERCIAL / VENTAS -->
+          <span class="lap-sidebar-section-title" style="margin-top: 8px;">Comercial</span>
+
+          <!-- GRAN MENÚ 2: PEDIDOS / VENTAS / PRODUCTOS -->
+          <div class="lap-sidebar-station-group lap-sidebar-master-group">
+            <button
+              type="button"
+              (click)="toggleVentas()"
+              class="lap-sidebar-station-header lap-sidebar-master-header"
+              [class.lap-sidebar-master-header--open]="openVentas()"
+              title="Ventas, Clientes y Pedidos"
+            >
+              <div class="lap-sidebar-station-header__left">
+                <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                  <circle cx="8" cy="21" r="1"></circle>
+                  <circle cx="19" cy="21" r="1"></circle>
+                  <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
+                </svg>
+                <span class="lap-sidebar-master-header__text">PEDIDOS / VENTAS / PRODUCTOS</span>
+              </div>
+              <svg *ngIf="openVentas()" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="6 9 12 15 18 9"></polyline>
+              </svg>
+              <svg *ngIf="!openVentas()" width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                <polyline points="9 18 15 12 9 6"></polyline>
+              </svg>
+            </button>
+
+            <!-- CONTENEDOR ANIDADO DE VENTAS / CLIENTES / PRODUCTOS -->
+            <div class="lap-sidebar-nested-container" *ngIf="openVentas()">
+              
+              <!-- 1. SUBMENÚ: AGREGAR CLIENTES / CLIENTES -->
+              <div class="lap-sidebar-station-group">
+                <button
+                  type="button"
+                  (click)="toggleInnerSection('clientes')"
+                  class="lap-sidebar-station-header lap-sidebar-station-header--sub"
+                  [class.lap-sidebar-station-header--active]="ui.activeModule() === 'clientes'"
+                  title="Gestión de Clientes"
+                >
+                  <div class="lap-sidebar-station-header__left">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2"></path>
+                      <circle cx="9" cy="7" r="4"></circle>
+                      <path d="M22 21v-2a4 4 0 0 0-3-3.87"></path>
+                      <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                    <span>Agregar Cliente</span>
+                  </div>
+                  <svg *ngIf="openInnerSections()['clientes']" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                  <svg *ngIf="!openInnerSections()['clientes']" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </button>
+
+                <!-- Pestañas Clientes: Llenar formato & Ver registros -->
+                <div class="lap-sidebar-submenu lap-sidebar-submenu--sub" *ngIf="openInnerSections()['clientes']">
+                  <button
+                    type="button"
+                    (click)="selectSubStation('clientes', 'form')"
+                    class="lap-sidebar-subitem"
+                    [class.lap-sidebar-subitem--active]="ui.activeModule() === 'clientes' && ui.activeTab() === 'form'"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <line x1="16" y1="13" x2="8" y2="13"></line>
+                      <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    <span>Llenar formato</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="selectSubStation('clientes', 'list')"
+                    class="lap-sidebar-subitem"
+                    [class.lap-sidebar-subitem--active]="ui.activeModule() === 'clientes' && ui.activeTab() === 'list'"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>Ver registros</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 2. SUBMENÚ: AGREGAR PRODUCTOS / PRODUCTOS -->
+              <div class="lap-sidebar-station-group">
+                <button
+                  type="button"
+                  (click)="toggleInnerSection('productos')"
+                  class="lap-sidebar-station-header lap-sidebar-station-header--sub"
+                  [class.lap-sidebar-station-header--active]="ui.activeModule() === 'productos'"
+                  title="Agregar Productos y Formulación"
+                >
+                  <div class="lap-sidebar-station-header__left">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
+                      <polyline points="3.29 7 12 12 20.71 7"></polyline>
+                      <line x1="12" y1="22" x2="12" y2="12"></line>
+                    </svg>
+                    <span>Agregar productos</span>
+                  </div>
+                  <svg *ngIf="openInnerSections()['productos']" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                  <svg *ngIf="!openInnerSections()['productos']" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </button>
+
+                <!-- Pestañas Productos: Llenar formato & Ver registros -->
+                <div class="lap-sidebar-submenu lap-sidebar-submenu--sub" *ngIf="openInnerSections()['productos']">
+                  <button
+                    type="button"
+                    (click)="selectSubStation('productos', 'form')"
+                    class="lap-sidebar-subitem"
+                    [class.lap-sidebar-subitem--active]="ui.activeModule() === 'productos' && ui.activeTab() === 'form'"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <line x1="16" y1="13" x2="8" y2="13"></line>
+                      <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    <span>Llenar formato</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="selectSubStation('productos', 'list')"
+                    class="lap-sidebar-subitem"
+                    [class.lap-sidebar-subitem--active]="ui.activeModule() === 'productos' && ui.activeTab() === 'list'"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>Ver registros</span>
+                  </button>
+                </div>
+              </div>
+
+              <!-- 3. SUBMENÚ: ORDEN PEDIDO / PEDIDOS -->
+              <div class="lap-sidebar-station-group">
+                <button
+                  type="button"
+                  (click)="toggleInnerSection('pedidos')"
+                  class="lap-sidebar-station-header lap-sidebar-station-header--sub"
+                  [class.lap-sidebar-station-header--active]="ui.activeModule() === 'pedidos'"
+                  title="Órdenes de Pedido de Clientes"
+                >
+                  <div class="lap-sidebar-station-header__left">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M6 2 3 6v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2V6l-3-4Z"></path>
+                      <path d="M3 6h18"></path>
+                      <path d="M16 10a4 4 0 0 1-8 0"></path>
+                    </svg>
+                    <span>Orden pedido</span>
+                  </div>
+                  <svg *ngIf="openInnerSections()['pedidos']" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="6 9 12 15 18 9"></polyline>
+                  </svg>
+                  <svg *ngIf="!openInnerSections()['pedidos']" width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                    <polyline points="9 18 15 12 9 6"></polyline>
+                  </svg>
+                </button>
+
+                <!-- Pestañas Pedidos: Llenar formato & Ver registros -->
+                <div class="lap-sidebar-submenu lap-sidebar-submenu--sub" *ngIf="openInnerSections()['pedidos']">
+                  <button
+                    type="button"
+                    (click)="selectSubStation('pedidos', 'form')"
+                    class="lap-sidebar-subitem"
+                    [class.lap-sidebar-subitem--active]="ui.activeModule() === 'pedidos' && ui.activeTab() === 'form'"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z"></path>
+                      <polyline points="14 2 14 8 20 8"></polyline>
+                      <line x1="16" y1="13" x2="8" y2="13"></line>
+                      <line x1="16" y1="17" x2="8" y2="17"></line>
+                    </svg>
+                    <span>Llenar formato</span>
+                  </button>
+
+                  <button
+                    type="button"
+                    (click)="selectSubStation('pedidos', 'list')"
+                    class="lap-sidebar-subitem"
+                    [class.lap-sidebar-subitem--active]="ui.activeModule() === 'pedidos' && ui.activeTab() === 'list'"
+                  >
+                    <svg width="12" height="12" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                      <circle cx="12" cy="12" r="10"></circle>
+                      <polyline points="12 6 12 12 16 14"></polyline>
+                    </svg>
+                    <span>Ver registros</span>
+                  </button>
+                </div>
+              </div>
+
+            </div>
           </div>
 
         </div>
 
-      </nav>
+        <!-- ============================================== -->
+        <!-- MODO COMPACTO (MINI SLOTS COMO EN LAPROBELL)   -->
+        <!-- ============================================== -->
+        <div *ngIf="!ui.sidebarExpanded()" class="lap-portal-sidebar__mini-icons">
+          <!-- Mini icono para Estaciones -->
+          <div
+            class="lap-portal-mini-slot"
+            [class.lap-portal-mini-slot--active]="openEstaciones()"
+            title="Estaciones de Producción"
+            (click)="expandWithEstaciones()"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <path d="M2 20a2 2 0 0 0 2 2h16a2 2 0 0 0 2-2V8l-7 5V8l-7 5V4a2 2 0 0 0-2-2H4a2 2 0 0 0-2 2z"></path>
+              <path d="M17 18h1"></path>
+              <path d="M12 18h1"></path>
+              <path d="M7 18h1"></path>
+            </svg>
+          </div>
 
-      <!-- Pie del Menú Lateral -->
-      <div class="sidebar-footer" *ngIf="ui.sidebarExpanded()">
-        <div class="footer-badge">
-          <span class="gmp-dot"></span>
-          <span class="footer-text">GMP / BPM VALIDADO</span>
+          <!-- Mini icono para Ventas / Clientes / Pedidos -->
+          <div
+            class="lap-portal-mini-slot"
+            [class.lap-portal-mini-slot--active]="openVentas()"
+            title="Pedidos / Ventas / Productos"
+            (click)="expandWithVentas()"
+          >
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+              <circle cx="8" cy="21" r="1"></circle>
+              <circle cx="19" cy="21" r="1"></circle>
+              <path d="M2.05 2.05h2l2.66 12.42a2 2 0 0 0 2 1.58h9.78a2 2 0 0 0 1.95-1.57l1.65-7.43H5.12"></path>
+            </svg>
+          </div>
         </div>
-        <span class="version-label">v1.2.0 • Titanio</span>
+
       </div>
     </aside>
   `,
   styles: [`
-    /* ======================================================== */
-    /* MENÚ LATERAL INDUSTRIAL (TITANIO & CIAN GLACIAL)         */
-    /* ======================================================== */
+    /* ==========================================================================
+       SIDEBAR MAESTRO DE NAVEGACIÓN (INTEGRADO AL LAYOUT - ESTILO LAPROBELL)
+       ========================================================================== */
     :host {
       display: block;
-      z-index: 80;
+      flex-shrink: 0;
+      height: 100%;
+      z-index: 90;
     }
 
-    .sidebar-master {
-      width: 275px;
-      height: calc(100vh - 68px);
-      position: sticky;
-      top: 68px;
-      background: #0f172a; /* Titanio Profundo Principal */
-      border-right: 1px solid rgba(6, 182, 212, 0.18);
+    .lap-portal-sidebar {
+      height: 100%;
+      background: #ffffff;
+      border-right: 1px solid #e2e8f0;
       display: flex;
       flex-direction: column;
-      transition: width 0.25s cubic-bezier(0.16, 1, 0.3, 1);
+      flex-shrink: 0;
+      transition: width 0.3s cubic-bezier(0.4, 0, 0.2, 1);
       user-select: none;
-      box-shadow: 2px 0 16px rgba(0, 0, 0, 0.25);
+      box-shadow: 1px 0 3px rgba(0, 0, 0, 0.02);
+      overflow: hidden;
     }
 
-    .sidebar-master.sidebar--collapsed {
-      width: 68px;
+    .lap-portal-sidebar--open {
+      width: 275px;
     }
 
-    /* -------------------------------------------------------- */
-    /* Encabezado del Menú Lateral                              */
-    /* -------------------------------------------------------- */
-    .sidebar-header {
-      height: 54px;
-      padding: 0 1rem;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      border-bottom: 1px solid rgba(255, 255, 255, 0.08);
-      background: #090d16;
+    .lap-portal-sidebar--closed {
+      width: 64px;
     }
 
-    .brand-mini {
-      display: flex;
-      flex-direction: column;
-    }
-
-    .brand-tag {
-      font-size: 0.58rem;
-      font-weight: 800;
-      letter-spacing: 0.08em;
-      color: #06b6d4;
-    }
-
-    .brand-title {
-      font-size: 0.84rem;
-      font-weight: 700;
-      color: #f1f5f9;
-      letter-spacing: -0.01em;
-    }
-
-    .collapse-toggle-btn {
-      width: 32px;
-      height: 32px;
-      border-radius: 8px;
-      background: #1e293b;
-      border: 1px solid rgba(6, 182, 212, 0.25);
-      color: #94a3b8;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      cursor: pointer;
-      transition: all 0.2s ease;
-    }
-
-    .collapse-toggle-btn:hover {
-      background: #0891b2;
-      color: #ffffff;
-      border-color: #06b6d4;
-      box-shadow: 0 0 10px rgba(6, 182, 212, 0.4);
-    }
-
-    .toggle-arrow {
-      transition: transform 0.25s cubic-bezier(0.16, 1, 0.3, 1);
-    }
-
-    /* -------------------------------------------------------- */
-    /* Buscador Rápido Interno                                  */
-    /* -------------------------------------------------------- */
-    .sidebar-search-box {
-      padding: 0.75rem 0.85rem 0.4rem 0.85rem;
-    }
-
-    .search-input-wrapper {
-      position: relative;
-      display: flex;
-      align-items: center;
-    }
-
-    .search-icon {
-      position: absolute;
-      left: 10px;
-      pointer-events: none;
-    }
-
-    .sidebar-search-input {
-      width: 100%;
-      height: 34px;
-      padding: 0 1.8rem 0 2rem;
-      background: #1e293b;
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      border-radius: 8px;
-      color: #f8fafc;
-      font-size: 0.76rem;
-      outline: none;
-      transition: all 0.2s ease;
-    }
-
-    .sidebar-search-input:focus {
-      border-color: #06b6d4;
-      box-shadow: 0 0 0 2px rgba(6, 182, 212, 0.2);
-      background: #0f172a;
-    }
-
-    .sidebar-search-input::placeholder {
-      color: #64748b;
-      font-size: 0.74rem;
-    }
-
-    .clear-search-btn {
-      position: absolute;
-      right: 8px;
-      background: none;
-      border: none;
-      color: #64748b;
-      font-size: 0.7rem;
-      cursor: pointer;
-      padding: 2px 4px;
-    }
-
-    .clear-search-btn:hover {
-      color: #f1f5f9;
-    }
-
-    /* -------------------------------------------------------- */
-    /* Contenido Navegable (Scroll Suave)                       */
-    /* -------------------------------------------------------- */
-    .sidebar-content {
+    .lap-portal-sidebar__content {
       flex: 1;
-      padding: 0.65rem 0.6rem;
+      padding: 0.75rem 0.65rem;
       overflow-y: auto;
       display: flex;
       flex-direction: column;
-      gap: 0.35rem;
+      gap: 0.5rem;
     }
 
-    .sidebar-content::-webkit-scrollbar {
+    .lap-portal-sidebar__content::-webkit-scrollbar {
       width: 4px;
     }
 
-    .sidebar-content::-webkit-scrollbar-track {
+    .lap-portal-sidebar__content::-webkit-scrollbar-track {
       background: transparent;
     }
 
-    .sidebar-content::-webkit-scrollbar-thumb {
-      background: #334155;
+    .lap-portal-sidebar__content::-webkit-scrollbar-thumb {
+      background: #e2e8f0;
       border-radius: 4px;
     }
 
-    .sidebar-content::-webkit-scrollbar-thumb:hover {
-      background: #06b6d4;
+    .lap-portal-sidebar__content::-webkit-scrollbar-thumb:hover {
+      background: #cbd5e1;
     }
 
-    /* -------------------------------------------------------- */
-    /* Item Raíz (Panel Principal / Inicio)                     */
-    /* -------------------------------------------------------- */
-    .nav-root-item {
+    /* --------------------------------------------------------------------------
+       BOTÓN INICIO (PANEL PRINCIPAL)
+       -------------------------------------------------------------------------- */
+    .lap-portal-sidebar__nav {
+      display: flex;
+      flex-direction: column;
+      gap: 8px;
+    }
+
+    .lap-sidebar-nav-item {
+      display: flex;
+      align-items: center;
+      gap: 10px;
       width: 100%;
-      height: 42px;
-      border-radius: 9px;
+      padding: 10px 12px;
+      border-radius: 10px;
       border: 1px solid transparent;
       background: transparent;
-      color: #94a3b8;
-      display: flex;
-      align-items: center;
-      padding: 0 0.75rem;
-      gap: 0.75rem;
-      cursor: pointer;
-      font-size: 0.825rem;
+      color: #475569;
+      font-size: 13.5px;
       font-weight: 600;
-      transition: all 0.15s ease;
-      position: relative;
-    }
-
-    .sidebar--collapsed .nav-root-item {
-      justify-content: center;
-      padding: 0;
-    }
-
-    .nav-root-item:hover {
-      background: #1e293b;
-      color: #f8fafc;
-      border-color: rgba(6, 182, 212, 0.25);
-    }
-
-    .nav-root-item--active {
-      background: rgba(6, 182, 212, 0.12) !important;
-      color: #06b6d4 !important;
-      border-color: rgba(6, 182, 212, 0.4) !important;
-      font-weight: 700;
-    }
-
-    .item-icon-box {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      flex-shrink: 0;
-    }
-
-    .item-label {
+      cursor: pointer;
+      transition: all 0.2s ease;
       white-space: nowrap;
     }
 
-    .active-glow-pip {
-      position: absolute;
-      right: 10px;
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #06b6d4;
-      box-shadow: 0 0 8px #06b6d4;
+    .lap-portal-sidebar--closed .lap-sidebar-nav-item {
+      justify-content: center;
+      padding: 10px 0;
     }
 
-    .section-divider {
-      padding: 0.75rem 0.5rem 0.25rem 0.5rem;
-      font-size: 0.62rem;
-      font-weight: 800;
-      color: #475569;
-      letter-spacing: 0.08em;
+    .lap-sidebar-nav-item:hover {
+      background: #f8fafc;
+      color: #0f172a;
+      border-color: #e2e8f0;
     }
 
-    /* -------------------------------------------------------- */
-    /* Módulos Agrupados y Acordeones                           */
-    /* -------------------------------------------------------- */
-    .module-group {
+    .lap-sidebar-nav-item--active {
+      background: #ecfeff !important;
+      color: #0891b2 !important;
+      border-color: rgba(6, 182, 212, 0.35) !important;
+      font-weight: 700;
+    }
+
+    /* --------------------------------------------------------------------------
+       TÍTULO DE SECCIONES Y ENCABEZADOS DE ACORDEÓN
+       -------------------------------------------------------------------------- */
+    .lap-sidebar-nav {
       display: flex;
       flex-direction: column;
-      border-radius: 9px;
+      gap: 4px;
+    }
+
+    .lap-sidebar-section-title {
+      font-size: 11px;
+      font-weight: 800;
+      text-transform: uppercase;
+      letter-spacing: 0.06em;
+      color: #94a3b8;
+      padding: 6px 10px 2px 10px;
+    }
+
+    .lap-sidebar-station-group {
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .lap-sidebar-station-header {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      width: 100%;
+      padding: 9px 12px;
+      border-radius: 10px;
+      border: 1px solid transparent;
+      background: transparent;
+      color: #334155;
+      font-size: 13px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      text-align: left;
+    }
+
+    .lap-sidebar-station-header:hover {
+      background: #f8fafc;
+      color: #0f172a;
+    }
+
+    .lap-sidebar-station-header__left {
+      display: flex;
+      align-items: center;
+      gap: 8px;
       overflow: hidden;
-      margin-bottom: 0.25rem;
-    }
-
-    .group-header-btn {
-      width: 100%;
-      height: 42px;
-      border-radius: 9px;
-      border: 1px solid transparent;
-      background: transparent;
-      color: #cbd5e1;
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-      padding: 0 0.75rem;
-      cursor: pointer;
-      font-size: 0.8rem;
-      font-weight: 600;
-      transition: all 0.15s ease;
-    }
-
-    .sidebar--collapsed .group-header-btn {
-      justify-content: center;
-      padding: 0;
-    }
-
-    .group-header-btn:hover {
-      background: #1e293b;
-      color: #ffffff;
-    }
-
-    .group-header-btn--active {
-      color: #06b6d4;
-      background: rgba(15, 23, 42, 0.6);
-    }
-
-    .header-left {
-      display: flex;
-      align-items: center;
-      gap: 0.75rem;
-    }
-
-    .group-icon {
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      color: #06b6d4;
-      flex-shrink: 0;
-    }
-
-    .group-title {
-      white-space: nowrap;
-      font-size: 0.79rem;
-    }
-
-    .chevron-indicator {
-      color: #64748b;
-      transition: transform 0.2s ease;
-    }
-
-    .chevron--expanded {
-      transform: rotate(180deg);
-      color: #06b6d4;
-    }
-
-    /* Sub-estaciones desplegables */
-    .group-children {
-      display: flex;
-      flex-direction: column;
-      gap: 0.5rem;
-      padding: 0.35rem 0.4rem 0.5rem 1.6rem;
-      background: rgba(9, 13, 22, 0.5);
-      border-left: 2px solid rgba(6, 182, 212, 0.3);
-      margin-left: 1.15rem;
-      margin-top: 0.2rem;
-      margin-bottom: 0.35rem;
-      border-radius: 0 8px 8px 0;
-    }
-
-    .substation-block {
-      display: flex;
-      flex-direction: column;
-      gap: 0.3rem;
-    }
-
-    .substation-title-row {
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-      padding: 0.15rem 0;
-    }
-
-    .substation-bullet {
-      width: 5px;
-      height: 5px;
-      border-radius: 50%;
-      background: #0891b2;
-      flex-shrink: 0;
-    }
-
-    .substation-name {
-      font-size: 0.73rem;
-      font-weight: 700;
-      color: #cbd5e1;
-      letter-spacing: -0.01em;
-    }
-
-    /* -------------------------------------------------------- */
-    /* Botones Interactivos de Acción: Llenar vs Ver Registros  */
-    /* -------------------------------------------------------- */
-    .action-buttons-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: 0.35rem;
-      margin-left: 0.6rem;
-    }
-
-    .action-subitem-btn,
-    .action-direct-btn {
-      height: 28px;
-      padding: 0 0.5rem;
-      border-radius: 6px;
-      border: 1px solid rgba(255, 255, 255, 0.08);
-      background: #1e293b;
-      color: #94a3b8;
-      font-size: 0.68rem;
-      font-weight: 600;
-      cursor: pointer;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 0.35rem;
-      transition: all 0.15s ease;
+      text-overflow: ellipsis;
       white-space: nowrap;
     }
 
-    .action-subitem-btn:hover,
-    .action-direct-btn:hover {
-      background: #334155;
-      color: #ffffff;
-      border-color: rgba(6, 182, 212, 0.4);
+    .lap-sidebar-station-header__left svg {
+      flex-shrink: 0;
+      color: #0891b2;
     }
 
-    .action-subitem--active {
-      background: #0891b2 !important;
-      color: #ffffff !important;
-      border-color: #06b6d4 !important;
-      box-shadow: 0 0 8px rgba(6, 182, 212, 0.35);
+    /* ==========================================================================
+       GRAN ACORDEÓN PRINCIPAL (ESTACIONES Y VENTAS)
+       ========================================================================== */
+    .lap-sidebar-master-group {
+      margin-bottom: 4px;
+    }
+
+    .lap-sidebar-master-header {
+      font-size: 13px;
       font-weight: 700;
+      color: #0f172a;
+      background: #f8fafc;
+      border: 1px solid #e2e8f0;
+      border-radius: 10px;
+      padding: 9px 12px;
+      transition: all 0.2s ease;
     }
 
-    .action-direct-box {
-      margin-left: 0.6rem;
+    .lap-sidebar-master-header:hover {
+      background: #f1f5f9;
+      border-color: #cbd5e1;
     }
 
-    .action-direct-btn {
-      width: 100%;
-      justify-content: flex-start;
-      padding: 0 0.65rem;
+    .lap-sidebar-master-header--open {
+      background: #ecfeff;
+      border-color: rgba(6, 182, 212, 0.35);
+      color: #0891b2;
     }
 
-    /* -------------------------------------------------------- */
-    /* Pie del Menú Lateral                                     */
-    /* -------------------------------------------------------- */
-    .sidebar-footer {
-      padding: 0.75rem 1rem;
-      background: #090d16;
-      border-top: 1px solid rgba(255, 255, 255, 0.08);
-      display: flex;
-      align-items: center;
-      justify-content: space-between;
-    }
-
-    .footer-badge {
-      display: flex;
-      align-items: center;
-      gap: 0.45rem;
-    }
-
-    .gmp-dot {
-      width: 6px;
-      height: 6px;
-      border-radius: 50%;
-      background: #06b6d4;
-      box-shadow: 0 0 6px #06b6d4;
-    }
-
-    .footer-text {
-      font-size: 0.62rem;
+    .lap-sidebar-master-header__text {
       font-weight: 800;
-      color: #06b6d4;
-      letter-spacing: 0.05em;
+      letter-spacing: 0.04em;
+      font-size: 12.5px;
     }
 
-    .version-label {
-      font-size: 0.62rem;
+    .lap-sidebar-nested-container {
+      display: flex;
+      flex-direction: column;
+      gap: 3px;
+      padding-left: 8px;
+      margin-left: 10px;
+      margin-top: 4px;
+      margin-bottom: 8px;
+      border-left: 2px solid #e2e8f0;
+    }
+
+    /* Subgrupo de Materias Primas */
+    .lap-sidebar-subgroup-header {
+      font-size: 12.5px;
+      padding: 7px 10px;
       color: #475569;
+    }
+
+    .lap-sidebar-subgroup-header:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .lap-sidebar-subgroup-header--active {
+      color: #0891b2;
+      font-weight: 700;
+      background: #f0fdff;
+    }
+
+    .lap-sidebar-nested-substations {
+      padding-left: 6px;
+      margin-left: 8px;
+      margin-top: 3px;
+      margin-bottom: 4px;
+      border-left: 1.5px dashed #cbd5e1;
+      display: flex;
+      flex-direction: column;
+      gap: 2px;
+    }
+
+    .lap-sidebar-station-header--sub {
+      font-size: 12px;
+      padding: 6px 8px;
       font-weight: 600;
+      border-radius: 8px;
+      white-space: nowrap;
+      overflow: hidden;
+    }
+
+    .lap-sidebar-station-header--sub .lap-sidebar-station-header__left {
+      gap: 6px;
+      min-width: 0;
+      overflow: hidden;
+      text-overflow: ellipsis;
+      white-space: nowrap;
+    }
+
+    .lap-sidebar-station-header--sub span {
+      font-size: 12px;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .lap-sidebar-station-header--active {
+      color: #0891b2;
+      font-weight: 700;
+      background: #ecfeff;
+    }
+
+    /* Sub-menú para Llenar formato y Ver registros */
+    .lap-sidebar-submenu--sub {
+      padding-left: 14px;
+      margin-left: 8px;
+      margin-top: 2px;
+      margin-bottom: 4px;
+      border-left: 1.5px solid #e2e8f0;
+    }
+
+    .lap-sidebar-subitem {
+      display: flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 10px;
+      border-radius: 8px;
+      border: none;
+      background: transparent;
+      color: #64748b;
+      font-size: 12px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      text-align: left;
+      width: 100%;
+    }
+
+    .lap-sidebar-subitem:hover {
+      background: #f1f5f9;
+      color: #0f172a;
+    }
+
+    .lap-sidebar-subitem--active {
+      background: #ecfeff;
+      color: #0891b2;
+      font-weight: 700;
+      border-left: 2px solid #06b6d4;
+    }
+
+    .lap-sidebar-subitem svg {
+      flex-shrink: 0;
+    }
+
+    /* --------------------------------------------------------------------------
+       MINI SLOTS COMPACTOS (MODO PLEGADO COMO EN LAPROBELL)
+       -------------------------------------------------------------------------- */
+    .lap-portal-sidebar__mini-icons {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 12px;
+      margin-top: 4px;
+    }
+
+    .lap-portal-mini-slot {
+      width: 40px;
+      height: 40px;
+      border-radius: 10px;
+      background: #f1f5f9;
+      color: #0891b2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.2s ease;
+      border: 1px solid transparent;
+    }
+
+    .lap-portal-mini-slot:hover {
+      background: #ecfeff;
+      border-color: rgba(6, 182, 212, 0.35);
+      color: #06b6d4;
+    }
+
+    .lap-portal-mini-slot--active {
+      background: #ecfeff;
+      color: #0891b2;
+      border: 1px solid rgba(6, 182, 212, 0.35);
     }
   `],
 })
@@ -677,137 +841,58 @@ export class SidebarComponent {
   auth = inject(AuthService);
   private router = inject(Router);
 
-  searchFilter = '';
+  // Acordeón Principal 1: Estaciones
+  openEstaciones = signal<boolean>(true);
 
-  // Acordeones abiertos (inician expandidos los principales para mejor ergonomía)
-  openGroups = signal<Record<string, boolean>>({
+  // Acordeón Principal 2: Ventas / Clientes / Pedidos
+  openVentas = signal<boolean>(false);
+
+  // Submenús de primer nivel (Materias Primas)
+  openSubmenus = signal<Record<string, boolean>>({
     'materias-primas': true,
-    'produccion': true,
-    'control-calidad': false,
-    'trazabilidad': false,
-    'catalogos': false,
   });
 
-  // Definición de módulos de trazabilidad (BioTrace Dermo-Pharma)
-  readonly moduleGroups: ModuleGroup[] = [
-    {
-      key: 'materias-primas',
-      title: 'Materias Primas & Insumos',
-      iconSvg: `
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M21 16V8a2 2 0 0 0-1-1.73l-7-4a2 2 0 0 0-2 0l-7 4A2 2 0 0 0 3 8v8a2 2 0 0 0 1 1.73l7 4a2 2 0 0 0 2 0l7-4A2 2 0 0 0 21 16z"></path>
-          <polyline points="3.27 6.96 12 12.01 20.73 6.96"></polyline>
-          <line x1="12" y1="22.08" x2="12" y2="12"></line>
-        </svg>
-      `,
-      subStations: [
-        { key: 'mp-ingreso', label: 'Ingreso de Lotes Insumos' },
-        { key: 'mp-consumo', label: 'Consumos en Reactores' },
-        { key: 'mp-inventario', label: 'Stock & Lotes Activos', hasTabs: false },
-      ],
-    },
-    {
-      key: 'produccion',
-      title: 'Manufactura & Formulación',
-      iconSvg: `
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <circle cx="12" cy="12" r="3"></circle>
-          <path d="M19.4 15a1.65 1.65 0 0 0 .33 1.82l.06.06a2 2 0 0 1 0 2.83 2 2 0 0 1-2.83 0l-.06-.06a1.65 1.65 0 0 0-1.82-.33 1.65 1.65 0 0 0-1 1.51V21a2 2 0 0 1-2 2 2 2 0 0 1-2-2v-.09A1.65 1.65 0 0 0 9 19.4a1.65 1.65 0 0 0-1.82.33l-.06.06a2 2 0 0 1-2.83 0 2 2 0 0 1 0-2.83l.06-.06a1.65 1.65 0 0 0 .33-1.82 1.65 1.65 0 0 0-1.51-1H3a2 2 0 0 1-2-2 2 2 0 0 1 2-2h.09A1.65 1.65 0 0 0 4.6 9a1.65 1.65 0 0 0-.33-1.82l-.06-.06a2 2 0 0 1 0-2.83 2 2 0 0 1 2.83 0l.06.06a1.65 1.65 0 0 0 1.82.33H9a1.65 1.65 0 0 0 1-1.51V3a2 2 0 0 1 2-2 2 2 0 0 1 2 2v.09a1.65 1.65 0 0 0 1 1.51 1.65 1.65 0 0 0 1.82-.33l.06-.06a2 2 0 0 1 2.83 0 2 2 0 0 1 0 2.83l-.06.06a1.65 1.65 0 0 0-.33 1.82V9a1.65 1.65 0 0 0 1.51 1H21a2 2 0 0 1 2 2 2 2 0 0 1-2 2h-.09a1.65 1.65 0 0 0-1.51 1z"></path>
-        </svg>
-      `,
-      subStations: [
-        { key: 'produccion-ordenes', label: 'Órdenes de Producción' },
-        { key: 'produccion-lotes', label: 'Lotes Producto Terminado' },
-      ],
-    },
-    {
-      key: 'control-calidad',
-      title: 'Control de Calidad (GMP)',
-      iconSvg: `
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M10 2v7.31"></path>
-          <path d="M14 9.3V1.99"></path>
-          <path d="M8.5 2h7"></path>
-          <path d="M14 9.3a6.5 6.5 0 1 1-4 0"></path>
-          <path d="M5.52 16h12.96"></path>
-        </svg>
-      `,
-      subStations: [
-        { key: 'calidad-liberacion', label: 'Liberación de Lotes', hasTabs: false },
-      ],
-    },
-    {
-      key: 'trazabilidad',
-      title: 'Trazabilidad 360°',
-      iconSvg: `
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <line x1="6" y1="3" x2="6" y2="15"></line>
-          <circle cx="18" cy="6" r="3"></circle>
-          <circle cx="6" cy="18" r="3"></circle>
-          <path d="M18 9a9 9 0 0 1-9 9"></path>
-        </svg>
-      `,
-      subStations: [
-        { key: 'trazabilidad-backward', label: 'Trazabilidad Ascendente', hasTabs: false },
-        { key: 'trazabilidad-forward', label: 'Trazabilidad Descendente', hasTabs: false },
-      ],
-    },
-    {
-      key: 'catalogos',
-      title: 'Catálogos & Homologación',
-      iconSvg: `
-        <svg width="17" height="17" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
-          <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
-          <circle cx="9" cy="7" r="4"></circle>
-          <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
-          <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
-        </svg>
-      `,
-      subStations: [
-        { key: 'cat-proveedores', label: 'Laboratorios & Proveedores' },
-        { key: 'cat-materiales', label: 'Principios Activos & Excipientes' },
-        { key: 'cat-productos', label: 'Fórmulas & Productos' },
-      ],
-    },
-  ];
-
-  filteredGroups = computed(() => {
-    const q = this.searchFilter.toLowerCase().trim();
-    if (!q) return this.moduleGroups;
-
-    return this.moduleGroups
-      .map((group) => {
-        const matchesGroup = group.title.toLowerCase().includes(q);
-        const matchedSubs = group.subStations.filter((s) => s.label.toLowerCase().includes(q));
-        if (matchesGroup || matchedSubs.length > 0) {
-          return {
-            ...group,
-            subStations: matchesGroup ? group.subStations : matchedSubs,
-          };
-        }
-        return null;
-      })
-      .filter((g): g is ModuleGroup => g !== null);
+  // Sub-secciones desplegables internas (Ingreso, Consumo, Clientes, Productos, Pedidos)
+  openInnerSections = signal<Record<string, boolean>>({
+    'mp-ingreso': true,
+    'mp-consumo': false,
+    'clientes': false,
+    'productos': false,
+    'pedidos': false,
   });
 
-  isGroupOpen(groupKey: string): boolean {
-    return !!this.openGroups()[groupKey];
+  toggleEstaciones() {
+    this.openEstaciones.update((v) => !v);
   }
 
-  isGroupActive(groupKey: string): boolean {
-    const group = this.moduleGroups.find((g) => g.key === groupKey);
-    if (!group) return false;
-    return group.subStations.some((s) => s.key === this.ui.activeModule());
+  toggleVentas() {
+    this.openVentas.update((v) => !v);
   }
 
-  toggleGroup(groupKey: string) {
-    if (!this.ui.sidebarExpanded()) {
-      this.ui.setSidebar(true);
-    }
-    this.openGroups.update((prev) => ({
+  toggleSubmenu(key: string) {
+    this.openSubmenus.update((prev) => ({
       ...prev,
-      [groupKey]: !prev[groupKey],
+      [key]: !prev[key],
     }));
+  }
+
+  toggleInnerSection(key: string) {
+    this.openInnerSections.update((prev) => ({
+      ...prev,
+      [key]: !prev[key],
+    }));
+  }
+
+  expandWithEstaciones() {
+    this.ui.setSidebar(true);
+    this.openEstaciones.set(true);
+    this.openVentas.set(false);
+  }
+
+  expandWithVentas() {
+    this.ui.setSidebar(true);
+    this.openVentas.set(true);
+    this.openEstaciones.set(false);
   }
 
   selectModule(moduleKey: string) {

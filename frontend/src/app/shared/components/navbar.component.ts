@@ -79,13 +79,17 @@ import { UiStateService } from '../../core/services/ui-state.service';
   styles: [`
     .navbar {
       height: 68px;
+      position: sticky;
+      top: 0;
+      z-index: 100;
+      flex-shrink: 0;
       background: #ffffff;
       border-bottom: 1px solid #e2e8f0;
       padding: 0 1.75rem;
       display: flex;
       align-items: center;
       justify-content: space-between;
-      box-shadow: 0 1px 2px rgba(15, 23, 42, 0.03);
+      box-shadow: 0 1px 3px rgba(15, 23, 42, 0.04);
     }
     .navbar-left {
       display: flex;
