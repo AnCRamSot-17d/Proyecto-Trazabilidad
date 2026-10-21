@@ -80,7 +80,7 @@ model IngresoMateriaPrima {
   proveedor         String
   fecha_ingreso     DateTime               @default(now())
   materia_prima     MateriaPrima           @relation(fields: [materia_prima_id], references: [id], onDelete: Restrict)
-  inventario        InventarioMateriaPrima @relation(fields: [inventario_id], references: [id], onDelete: Cascade)
+  inventario        InventarioMateriaPrima @relation(fields: [inventario_id], references: [id], onDelete: Restrict)
 
   @@map("ingreso_materia_prima")
 }
