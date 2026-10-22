@@ -8,15 +8,31 @@ datasource db {
   directUrl = env("DIRECT_URL")
 }
 
+model Cliente {
+  id               String     @id @default(uuid()) @db.Uuid
+  nombre_empresa   String     @unique @db.VarChar(150)
+  persona_contacto String     @db.VarChar(150)
+  email            String     @db.VarChar(150)
+  telefono         String     @db.VarChar(50)
+  direccion        String?    @db.VarChar(255)
+  creado_en        DateTime   @default(now())
+  pedidos          Pedido[]
+  productos        Producto[]
+
+  @@map("clientes")
+}
+
 model Pedido {
   id            String            @id @default(uuid()) @db.Uuid
   numero_pedido String            @unique
-  cliente_marca String
+  cliente_id    String            @db.Uuid
   estado        String            @default("PENDIENTE")
   fecha_pedido  DateTime          @default(now())
+  cliente       Cliente           @relation(fields: [cliente_id], references: [id], onDelete: Restrict)
   detalles      DetallePedido[]
   ordenes       OrdenProduccion[]
 
+  @@index([cliente_id])
   @@map("pedidos")
 }
 
@@ -36,13 +52,16 @@ model DetallePedido {
 
 model Producto {
   id              String                 @id @default(uuid()) @db.Uuid
+  cliente_id      String?                @db.Uuid
   codigo_unico    String                 @unique
   nombre_producto String
   presentaciones  String?
   fecha_creacion  DateTime               @default(now())
+  cliente         Cliente?               @relation(fields: [cliente_id], references: [id], onDelete: SetNull)
   formula         ProductoMateriaPrima[]
   ordenes         OrdenProduccion[]
 
+  @@index([cliente_id])
   @@map("productos")
 }
 
