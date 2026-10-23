@@ -88,25 +88,25 @@
     },
     {
       "method": "GET",
-      "path": "/api/lots/17fac51e-42c1-4f99-b250-f3f20c150b88/traceability",
+      "path": "/api/lots/dd864b8d-f805-4cb9-af71-547af8d4a406/traceability",
       "status": 404,
       "expected": 404
     },
     {
       "method": "GET",
-      "path": "/api/material-lots/18bd5724-3ca6-4403-a360-1793f32dccb2/traceability",
+      "path": "/api/material-lots/8247f5db-4a49-4743-afba-b5bbc2ce8bc0/traceability",
       "status": 404,
       "expected": 404
     },
     {
       "method": "GET",
-      "path": "/api/inventory/600a2b4f-1dbc-4a5b-bf2c-f1c450bf036e/traceability",
+      "path": "/api/inventory/5dae9952-5fb3-4e0f-8de9-c330c3929380/traceability",
       "status": 404,
       "expected": 404
     },
     {
       "method": "GET",
-      "path": "/api/production-orders/8b64acb0-faf0-4e7e-ad41-5fd9241892d8/traceability",
+      "path": "/api/production-orders/4aeb950a-8339-451d-8f24-9f168fa2d94a/traceability",
       "status": 404,
       "expected": 404
     },
@@ -119,7 +119,7 @@
     },
     {
       "method": "GET",
-      "path": "/api/users/603537d0-6a61-4846-a290-2e28feb81816",
+      "path": "/api/users/5d93dc0c-0584-4a8f-b3e1-7bc91931e5a4",
       "status": 404,
       "expected": 404
     },
@@ -131,7 +131,7 @@
     },
     {
       "method": "PATCH",
-      "path": "/api/users/d044b45d-9fb7-4982-bcca-05e48541bef9",
+      "path": "/api/users/1eda26a4-8906-4966-b396-d141a1b259da",
       "status": 403,
       "expected": 403
     },
@@ -144,7 +144,7 @@
     },
     {
       "method": "GET",
-      "path": "/api/products/27076df4-5537-4494-add8-9c141e77046b",
+      "path": "/api/products/8d774b72-2fd4-462d-8ad5-3a732457fa0e",
       "status": 404,
       "expected": 404
     },
@@ -156,7 +156,7 @@
     },
     {
       "method": "PATCH",
-      "path": "/api/products/a572275a-86bc-482e-838c-284cb81ae091",
+      "path": "/api/products/dd5adbee-9c53-448b-a424-efcb5ce0de00",
       "status": 403,
       "expected": 403
     },
@@ -169,7 +169,7 @@
     },
     {
       "method": "GET",
-      "path": "/api/materials/9c4b3747-9ae7-46eb-9e2e-90735c5ec7ef",
+      "path": "/api/materials/b2b044c3-f6bd-4bc9-8329-70c5c2bb0e00",
       "status": 404,
       "expected": 404
     },
@@ -181,7 +181,7 @@
     },
     {
       "method": "PATCH",
-      "path": "/api/materials/b8d22521-77e2-4f2e-b5f7-57fe68ca51a0",
+      "path": "/api/materials/99a90349-f8ea-406a-9b86-5eacc1d53ef6",
       "status": 403,
       "expected": 403
     },
@@ -194,7 +194,7 @@
     },
     {
       "method": "GET",
-      "path": "/api/clients/10a970c5-d558-4b56-b41a-cdaf5f67ee84",
+      "path": "/api/clients/078e1af9-c9ca-4dff-895f-ba091a7da58e",
       "status": 404,
       "expected": 404
     },
@@ -206,7 +206,7 @@
     },
     {
       "method": "PATCH",
-      "path": "/api/clients/5a645092-c808-4c18-ba3d-b5613459900f",
+      "path": "/api/clients/18c7bcdf-6b27-4a52-b721-267bbcc73dbd",
       "status": 403,
       "expected": 403
     },
@@ -219,7 +219,7 @@
     },
     {
       "method": "GET",
-      "path": "/api/clientes/48992477-5613-45b9-9cb5-c7441efd8ffe",
+      "path": "/api/clientes/6ad42256-f88f-4445-9c79-bda271a2d6b7",
       "status": 404,
       "expected": 404
     },
@@ -231,7 +231,7 @@
     },
     {
       "method": "PATCH",
-      "path": "/api/clientes/854ae7e2-dd69-4d10-92d3-d4902a751de8",
+      "path": "/api/clientes/2242b2ce-61ef-4494-ac01-e0550b2f3865",
       "status": 403,
       "expected": 403
     },
@@ -244,7 +244,7 @@
     },
     {
       "method": "GET",
-      "path": "/api/orders/c78f4bfb-cdba-47ae-b07a-10778cff9336",
+      "path": "/api/orders/56219a12-9480-4141-b763-b7718b5bb73b",
       "status": 404,
       "expected": 404
     },
@@ -263,7 +263,7 @@
     },
     {
       "method": "GET",
-      "path": "/api/pedidos/a77123a7-3f76-4f40-a1d6-3fc456c1039f",
+      "path": "/api/pedidos/f9f15d7b-8492-4655-8c77-3594463f78c1",
       "status": 404,
       "expected": 404
     },
@@ -282,7 +282,7 @@
     },
     {
       "method": "GET",
-      "path": "/api/production-orders/50246863-c160-449c-ba36-e572c430c054",
+      "path": "/api/production-orders/e862e4be-5e17-4676-b21f-64320b6cd7f1",
       "status": 404,
       "expected": 404
     },
@@ -301,7 +301,7 @@
     },
     {
       "method": "GET",
-      "path": "/api/material-lots/e9938d49-16a1-4996-96ac-52475539ce3a",
+      "path": "/api/material-lots/1269dc3a-8247-4c49-ad53-cd2f9c2edb94",
       "status": 404,
       "expected": 404
     },
@@ -320,7 +320,7 @@
     },
     {
       "method": "GET",
-      "path": "/api/ingresos-mp/c4c9b02e-20e9-4658-a0c1-4d9e5ebd56c7",
+      "path": "/api/ingresos-mp/6bbc777f-0f64-4b73-a167-675254c71b20",
       "status": 404,
       "expected": 404
     },
@@ -339,7 +339,7 @@
     },
     {
       "method": "GET",
-      "path": "/api/consumptions/d72169dc-ad8f-4529-bb66-f7ece4b38683",
+      "path": "/api/consumptions/3c6a488d-25e4-42f6-80e9-c32a2bbb2c18",
       "status": 404,
       "expected": 404
     },
@@ -358,7 +358,7 @@
     },
     {
       "method": "GET",
-      "path": "/api/consumos/ab978d36-c66a-4128-82a0-b8e6826b15dc",
+      "path": "/api/consumos/bc0d96c2-ed4a-4caf-b55e-131acdb6f043",
       "status": 404,
       "expected": 404
     },
@@ -377,7 +377,7 @@
     },
     {
       "method": "GET",
-      "path": "/api/inventory/d566a0c4-a0d1-4d75-9606-cbc42017f1ee",
+      "path": "/api/inventory/31d4db98-f6e8-4389-bbf0-dc8f850ab479",
       "status": 404,
       "expected": 404
     },
@@ -390,7 +390,7 @@
     },
     {
       "method": "GET",
-      "path": "/api/inventario/0b0533da-5d5c-4c18-8dc6-20ae50dc06ef",
+      "path": "/api/inventario/cce9da66-3e34-46db-baae-ac87e5faaab0",
       "status": 404,
       "expected": 404
     },
@@ -403,7 +403,7 @@
     },
     {
       "method": "GET",
-      "path": "/api/quality/39d02382-121f-49c3-a2bd-65d3781d8c7e",
+      "path": "/api/quality/ea3bcef9-2163-489f-b97a-db8348ce4eed",
       "status": 404,
       "expected": 404
     },
@@ -422,7 +422,7 @@
     },
     {
       "method": "GET",
-      "path": "/api/calidad/af7a0c23-9066-4f16-a40d-297ecef987c5",
+      "path": "/api/calidad/616d62bb-6c94-4dd1-9efa-ae0eabaaedf4",
       "status": 404,
       "expected": 404
     },
@@ -441,7 +441,7 @@
     },
     {
       "method": "GET",
-      "path": "/api/lots/c1e0ed1d-9e18-4a2d-9d52-488411fca6ee",
+      "path": "/api/lots/95a67347-3573-40dd-9231-abdb16e65a0b",
       "status": 404,
       "expected": 404
     },

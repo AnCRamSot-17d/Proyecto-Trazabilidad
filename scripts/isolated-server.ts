@@ -14,7 +14,7 @@ await db.usuario.create({data:{email:'test-admin@biotrace.invalid',nombre:'Admin
 // Ignored local file, never log the password or database URL.
 if (!saved) writeFileSync('.env.isolated','TEST_ADMIN_EMAIL=test-admin@biotrace.invalid\nTEST_ADMIN_PASSWORD='+password+'\n',{mode:0o600});
 const port=Number(process.env.ISOLATED_API_PORT || 3001);
-const server=app.listen(port,'127.0.0.1',()=>console.log(JSON.stringify({mode:'isolated-postgresql',url:'http://127.0.0.1:'+port+'/api',credentialsFile:'backend/.env.isolated'})));
+const server=app.listen(port,'127.0.0.1',()=>console.log(JSON.stringify({mode:'isolated-postgresql',url:'http://127.0.0.1:'+port+'/api',credentialsFile:'.env.isolated'})));
 let stopping=false;
 async function stop(){if(stopping)return;stopping=true;await new Promise<void>(ok=>server.close(()=>ok()));await db.$disconnect();await local.stop();process.exit(0);}
 process.on('SIGINT',stop);process.on('SIGTERM',stop);

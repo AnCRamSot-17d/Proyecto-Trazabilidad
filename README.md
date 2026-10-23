@@ -1,94 +1,120 @@
-# Proyecto-Trazabilidad — BioTrace (Rama `front-back`)
+# BioTrace Dermo-Pharma — Backend REST API (`Proyecto-Trazabilidad`)
 
-> **Actualización técnica:** la API ya está conectada a Neon en solo lectura. Consultar [CONEXION_NEON.md](CONEXION_NEON.md) para resultados, acceso local, endpoints y arranque. Los comandos de migración/seed descritos más abajo pertenecen a documentación anterior: no ejecutarlos contra la base compartida.
+API REST y motor de datos para el **Sistema de Trazabilidad Industrial y Manufactura Multiproducto (Cosméticos, Dermocosmética y Farmacéutica)**.
 
-Plataforma de Trazabilidad Industrial y Manufactura especializada en **Cosméticos, Dermocosmética y Farmacéutica** (excluyendo alimentos). Permite auditar todo el ciclo de vida: homologación de proveedores de principios activos y excipientes, control de balance de masa en formulaciones, fabricación de lotes terminados, liberación de control de calidad bajo estándares GMP/BPM y trazabilidad 360° ascendente y descendente.
+Este repositorio contiene exclusivamente el **Backend** desacoplado, desarrollado bajo una estricta **Arquitectura en Capas** con **Node.js, Express, TypeScript, Prisma ORM y Neon PostgreSQL**.
 
----
-
-## Arquitectura y Stack Tecnológico
-
-El proyecto está organizado bajo una **Arquitectura en Capas** limpia y desacoplada:
-
-- **Frontend (`/frontend`)**: **Angular 19+** con Componentes Standalone, Signals, HttpClient y diseño corporativo de alta gama.
-- **Backend (`/backend`)**: **Node.js + Express + TypeScript** estructurado en capas (Controllers, Services, Repositories, Schemas/Validators, Middlewares).
-- **ORM & Base de Datos**: **Prisma 6.x** y **Neon PostgreSQL 17** (serverless en la nube) con transacciones con aislamiento `Serializable` para balances de inventario y consumos sin inconsistencias ni pérdidas de precisión decimal.
-
-> **Rendimiento**: Se prescinde del uso de Docker para optimizar el uso de memoria RAM en el equipo y aprovechar la recarga rápida de `npm run dev` y `npm start`.
+El cliente frontend ha sido separado en el proyecto independiente **`front-biotrace`** (Angular 19+ Standalone con Signals).
 
 ---
 
-## Estructura del Repositorio
+## 1. Arquitectura en Capas
+
+El backend opera de forma modular sin dependencias de frontend:
+
+- **Controladores (`src/controllers/`)**: Manejan las solicitudes y respuestas HTTP, validando códigos de estado.
+- **Servicios (`src/services/`)**: Implementan la lógica de negocio, transacciones atómicas con aislamiento `Serializable` y algoritmos de trazabilidad bidireccional 360°.
+- **Repositorios / Base de Datos (`src/repositories/`, `src/config/db.ts`)**: Abstracción del cliente Prisma 6.x y consultas tipadas.
+- **Validadores / Esquemas (`src/schemas/`)**: Validación estricta en tiempo de ejecución con **Zod** para todos los payloads entrantes.
+- **Seguridad (`src/middlewares/auth.middleware.ts`, `src/config/jwt.ts`)**: Autenticación con JSON Web Tokens (JWT) con ciclo de vida de **30 minutos** y auto-renovación para usuarios activos.
+
+---
+
+## 2. Estructura del Proyecto
 
 ```text
 Proyecto-Trazabilidad/
-├── backend/            # API REST en Node.js, Express, Prisma y Neon
-│   ├── .env.example    # Plantilla de variables para Neon
-│   ├── .env            # Credenciales de conexión (no versionado)
-│   ├── src/
-│   │   ├── config/     # Conexión DB y configuración
-│   │   ├── controllers/# Controladores HTTP
-│   │   ├── services/   # Lógica de negocio y transacciones serializables
-│   │   ├── repositories/# Acceso a datos Prisma
-│   │   ├── schemas/    # Validación estricta con Zod
-│   │   └── routes/     # Rutas REST (/api/*)
-│   ├── prisma/         # Esquema, migraciones y seed idempotente
-│   └── tests/          # Tests de validación e integración
-├── frontend/           # SPA en Angular 19 (Standalone & Signals)
-│   └── src/app/
-│       ├── core/       # Modelos e interfaces y servicio ApiService
-│       ├── shared/     # Navbar, Sidebar y componentes comunes
-│       └── features/   # Dashboard, Proveedores, Insumos, Órdenes, Lotes y Trazabilidad
-├── AGENTS.md           # Guía técnica completa para desarrolladores y agentes
-└── agent.md            # Puntero rápido
+├── prisma/
+│   ├── schema.prisma          # Modelado relacional Neon PostgreSQL
+│   └── seed.ts                # Inicialización y datos de prueba
+├── src/
+│   ├── config/                # Conexión DB, variables de entorno y JWT
+│   ├── controllers/           # Controladores de dominio, auth y health
+│   ├── middlewares/           # Autenticación JWT y manejo centralizado de errores
+│   ├── repositories/          # Consultas Prisma tipadas
+│   ├── routes/                # Enrutador modular Express (/api/*)
+│   ├── schemas/               # Validaciones Zod de inputs y paginación
+│   ├── services/              # Lógica de balance, trazabilidad y contraseñas scrypt
+│   ├── types/                 # Tipos TypeScript compartidos y HttpError
+│   ├── app.ts                 # Configuración de Express y CORS
+│   └── server.ts              # Punto de arranque del servidor
+├── scripts/                   # Herramientas de inspección, test cluster y hash
+├── tests/                     # Suite de pruebas unitarias y de integración
+├── reports/                   # Evidencias técnicas de ejecución y contratos
+├── .env                       # Variables de entorno locales (ignorado por Git)
+├── .env.example               # Plantilla de configuración
+├── package.json               # Dependencias y scripts de backend
+└── tsconfig.json              # Configuración TypeScript estricta
 ```
 
 ---
 
-## Inicio Rápido de Desarrollo
+## 3. Configuración y Ejecución
 
-### 1. Configurar Neon en el Backend (`/backend`)
-Crea o edita el archivo `backend/.env` con tu cadena de conexión de Neon:
+### Variables de Entorno (`.env`)
+Configurar en la raíz del proyecto un archivo `.env` basado en `.env.example`:
 ```env
-DATABASE_URL="postgresql://usuario:password@ep-sample-project.us-east-2.aws.neon.tech/neondb?sslmode=require"
-APP_PORT=3000
+DATABASE_URL="postgresql://neondb_owner:***@ep-***.us-east-2.aws.neon.tech/neondb?sslmode=require"
+DIRECT_URL="postgresql://neondb_owner:***@ep-***.us-east-2.aws.neon.tech/neondb?sslmode=require"
+PORT=3000
+JWT_SECRET="clave-secreta-de-produccion-de-al-menos-32-caracteres"
+CORS_ORIGIN="http://localhost:4200"
 ```
 
-### 2. Arrancar el Backend
+### Comandos de Ejecución
+
 ```bash
-cd backend
+# Instalar dependencias
 npm install
-npm run db:generate    # Genera el cliente Prisma
-npm run db:migrate     # Aplica las tablas en Neon
-npm run db:seed        # Carga datos de prueba idempotentes (DEMO-*)
-npm run dev            # Servidor Express activo en http://localhost:3000/api
+
+# Generar cliente de Prisma
+npm run db:generate
+
+# Iniciar servidor en modo desarrollo (recarga rápida con tsx watch)
+npm run dev
+
+# Ejecutar verificación de tipos TypeScript
+npm run typecheck
+
+# Ejecutar pruebas unitarias
+npm test
+
+# Ejecutar suite de integración HTTP con base aislada
+npm run test:api
+
+# Inspeccionar esquema y tablas de Neon PostgreSQL
+npm run db:inspect
 ```
 
-### 3. Arrancar el Frontend (Angular)
-En una terminal separada:
-```bash
-cd frontend
-npm install
-npm start              # Abre el cliente en http://localhost:4200
-```
+El servidor API estará disponible en:
+👉 **`http://localhost:3000/api`**
 
 ---
 
-## Endpoints de la API REST
+## 4. Catálogo de Endpoints REST (`/api/*`)
 
-Base: `http://localhost:3000/api`. JSON en POST con `Content-Type: application/json`.
-
-| Recurso | Métodos | Descripción |
+| Endpoint | Método | Descripción |
 | --- | --- | --- |
-| `/health` | GET | Consulta real a Neon/PostgreSQL (503 si falla). |
-| `/auth/login` | POST | Autenticación de usuarios y emisión de JWT (30m). |
-| `/auth/refresh` | POST | Renovación de token JWT para sesiones activas. |
-| `/auth/me` | GET | Consulta de usuario actual autenticado. |
-| `/suppliers` | GET, POST | Directorio de proveedores de materias primas. |
-| `/materials` | GET, POST | Catálogo de insumos y materias primas. |
-| `/material-lots` | GET, POST | Lotes de materia prima recibidos de proveedores. |
-| `/products` | GET, POST | Catálogo de productos terminados. |
-| `/production-orders` | GET, POST | Órdenes de fabricación con consumo de insumos. |
-| `/lots` | GET, POST | Lotes de producto terminado y control de calidad. |
-| `/lots/:id/traceability` | GET | **Trazabilidad Ascendente** (Lote Terminado -> Consumos -> Materias Primas -> Proveedor). |
-| `/material-lots/:id/traceability` | GET | **Trazabilidad Descendente** (Lote Insumo -> Consumos -> Órdenes -> Lotes Terminados). |
+| `/api/health` | `GET` | Verificación en vivo de conexión con Neon PostgreSQL. |
+| `/api/auth/login` | `POST` | Inicio de sesión con JWT válido por 30 minutos. |
+| `/api/auth/refresh` | `POST` | Renovación de token JWT activo. |
+| `/api/auth/me` | `GET` | Datos de la sesión del usuario actual. |
+| `/api/suppliers` | `GET`, `POST` | Directorio de proveedores de materias primas y principios activos. |
+| `/api/materials` | `GET`, `POST`, `PATCH` | Catálogo de insumos químicos y principios activos. |
+| `/api/material-lots` | `GET`, `POST` | Recepción de lotes de materias primas con control de stock. |
+| `/api/products` | `GET`, `POST`, `PATCH` | Catálogo de productos cosméticos y dermofarmacéuticos terminados. |
+| `/api/orders` | `GET`, `POST` | Pedidos de clientes con cálculo automático de subtotales. |
+| `/api/production-orders`| `GET`, `POST` | Programación de reactores y órdenes de manufactura. |
+| `/api/consumptions` | `GET`, `POST` | Balance de masa estricto con descuento automático de inventario. |
+| `/api/quality` | `GET`, `POST` | Liberación técnica de control de calidad bajo GMP/BPM (`PENDING`, `APPROVED`, `REJECTED`). |
+| `/api/lots` | `GET`, `POST` | Lotes de producto terminado. |
+| `/api/lots/:id/traceability` | `GET` | **Trazabilidad Ascendente**: Lote terminado -> Reactores -> Materias primas -> Proveedor. |
+| `/api/material-lots/:id/traceability` | `GET` | **Trazabilidad Descendente**: Lote de insumo -> Consumos -> Lotes producidos -> Clientes. |
+| `/api/inventory` | `GET` | Estado y saldo en tiempo real de insumos en bodega. |
+
+---
+
+## 5. Proyecto Frontend Vinculado
+
+El frontend correspondiente se encuentra en el directorio independiente:
+📁 **`front-biotrace`** (`http://localhost:4200`), el cual consume esta API mediante proxy `/api` o CORS habilitado.

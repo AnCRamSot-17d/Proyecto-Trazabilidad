@@ -81,55 +81,53 @@ Todo el diseño debe emplear **CSS Grid** como estándar de diagramación para g
 
 ---
 
-## 6. Estructura de Directorios (Arquitectura en Capas)
+## 6. Estructura de Directorios Desacoplada
 
+Los proyectos se encuentran separados para garantizar alta cohesión, seguridad y mejores prácticas de arquitectura web:
+
+### A. Repositorio Backend (`Proyecto-Trazabilidad`)
 ```text
 Proyecto-Trazabilidad/
-├── backend/                         # Servidor REST (Node.js + Express + Prisma + Zod)
-│   ├── package.json                 # Scripts de backend
-│   ├── tsconfig.json                # TypeScript estricto
-│   ├── .env.example                 # Plantilla de variables Neon
-│   ├── prisma/
-│   │   ├── schema.prisma            # Modelado PostgreSQL
-│   │   └── seed.ts                  # Datos de prueba iniciales
-│   └── src/
-│       ├── config/                  # DB connection y config JWT (30m)
-│       ├── types/                   # Tipos TypeScript y HttpError
-│       ├── schemas/                 # Esquemas Zod (auth.schema.ts, etc.)
-│       ├── services/                # Lógica de negocio (auth.service.ts, etc.)
-│       ├── controllers/             # Manejadores HTTP (auth.controller.ts, etc.)
-│       ├── middlewares/             # auth.middleware.ts, error.middleware.ts
-│       ├── routes/                  # Enrutador modular Express
-│       ├── app.ts                   # Instancia Express y CORS
-│       └── server.ts                # Arranque del servidor
-│
-├── frontend/                        # Cliente Web SPA (Angular 19+ Standalone)
-│   ├── package.json                 # Dependencias y scripts
-│   ├── angular.json                 # Configuración de build
-│   ├── public/                      # Recursos estáticos públicos (/images)
-│   └── src/
-│       ├── index.html               # Fuentes Google (Inter, Plus Jakarta Sans)
-│       ├── styles.css               # Tokens globales y utilidades CSS Grid
-│       ├── main.ts                  # Bootstrap standalone
-│       └── app/
-│           ├── app.component.ts     # Componente raíz
-│           ├── app.routes.ts        # Enrutador con authGuard
-│           ├── app.config.ts        # HttpClient con authInterceptor
-│           ├── core/
-│           │   ├── guards/          # auth.guard.ts
-│           │   ├── interceptors/    # auth.interceptor.ts
-│           │   ├── models/          # Modelos de datos
-│           │   └── services/        # auth.service.ts, api.service.ts
-│           ├── shared/
-│           │   └── components/      # navbar.component.ts (con timer en vivo)
-│           └── features/
-│               ├── auth/            # login.component.ts (CSS Grid + fondo lab)
-│               └── home/            # home.component.ts (dashboard de módulos)
-│
-├── .gitignore                       # Ignorados globales
-├── README.md                        # Documentación general del repositorio
-├── AGENTS.md                        # Esta guía técnica integral
-└── agent.md                         # Resumen ejecutivo y enlace a AGENTS.md
+├── prisma/
+│   ├── schema.prisma            # Modelado PostgreSQL / Neon
+│   └── seed.ts                  # Datos de prueba iniciales
+├── src/
+│   ├── config/                  # DB connection y config JWT (30m)
+│   ├── types/                   # Tipos TypeScript y HttpError
+│   ├── schemas/                 # Esquemas Zod (auth.schema.ts, etc.)
+│   ├── services/                # Lógica de negocio (auth.service.ts, etc.)
+│   ├── controllers/             # Manejadores HTTP (auth.controller.ts, etc.)
+│   ├── middlewares/             # auth.middleware.ts, error.middleware.ts
+│   ├── routes/                  # Enrutador modular Express
+│   ├── app.ts                   # Instancia Express y CORS
+│   └── server.ts                # Arranque del servidor
+├── scripts/                     # Scripts de introspección y utilidades
+├── tests/                       # Pruebas unitarias e integración aislada
+├── reports/                     # Reportes de auditoría y contratos
+├── package.json                 # Scripts de backend (npm run dev, test, etc.)
+├── tsconfig.json                # TypeScript estricto
+├── .env.example                 # Plantilla de variables Neon
+└── .gitignore                   # Reglas de exclusión para backend
+```
+
+### B. Proyecto Frontend Independiente (`front-biotrace`)
+```text
+front-biotrace/
+├── public/                      # Recursos estáticos públicos (/images)
+├── src/
+│   ├── index.html               # Fuentes Google (Inter, Plus Jakarta Sans)
+│   ├── styles.css               # Tokens globales y utilidades CSS Grid
+│   ├── main.ts                  # Bootstrap standalone
+│   └── app/
+│       ├── app.component.ts     # Componente raíz
+│       ├── app.routes.ts        # Enrutador con authGuard
+│       ├── app.config.ts        # HttpClient con authInterceptor
+│       ├── core/                # Guards, interceptores, modelos y servicios API
+│       ├── shared/              # Navbar con temporizador regresivo reactivo
+│       └── features/            # Módulos auth (login) y home (dashboard/trazabilidad)
+├── angular.json                 # Configuración de build Angular CLI
+├── proxy.conf.json              # Proxy inverso de desarrollo (/api -> http://127.0.0.1:3000)
+└── package.json                 # Dependencias y scripts de Angular 19
 ```
 
 ---
@@ -155,20 +153,19 @@ Proyecto-Trazabilidad/
 
 ## 8. Comandos de Ejecución
 
-Para iniciar el sistema de forma local se requieren únicamente dos terminales:
+Para iniciar el sistema de forma local:
 
-### Terminal 1 — Backend:
+### Terminal 1 — Backend (`Proyecto-Trazabilidad`):
 ```bash
-cd backend
 npm run dev
-# Servidor REST en http://localhost:3000/api
+# Servidor REST activo en http://localhost:3000/api
 ```
 
-### Terminal 2 — Frontend:
+### Terminal 2 — Frontend (`front-biotrace`):
 ```bash
-cd frontend
+cd ../front-biotrace
 npm run dev
-# Aplicación web en http://localhost:4200
+# Aplicación web activa en http://localhost:4200 (con proxy hacia la API)
 ```
 
 ---

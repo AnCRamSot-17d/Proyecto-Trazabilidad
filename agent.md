@@ -51,8 +51,8 @@ Este documento resume las reglas indispensables, directrices de diseño y arquit
 ## 🚀 5. Comandos de Inicio Rápido
 
 Solo se requieren dos comandos directos (sin Docker):
-1. **Backend**: `cd backend && npm run dev` (API en `http://localhost:3000/api`)
-2. **Frontend**: `cd frontend && npm run dev` (Cliente en `http://localhost:4200`)
+1. **Backend (`Proyecto-Trazabilidad`)**: `npm run dev` (API en `http://localhost:3000/api`)
+2. **Frontend (`front-biotrace`)**: `cd ../front-biotrace && npm run dev` (Cliente en `http://localhost:4200`)
 
 ---
 
