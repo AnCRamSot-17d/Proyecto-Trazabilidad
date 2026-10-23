@@ -11,6 +11,7 @@
     "db:generate": "prisma generate",
     "test": "tsx --test tests/*.test.ts",
     "test:api": "tsx --test tests/api.integration.ts",
+    "test:unit": "tsx --test tests/unit/**/*.test.ts",
     "db:inspect": "tsx scripts/inspect-db.ts",
     "password:hash": "tsx scripts/hash-password.ts",
     "dev:isolated": "tsx scripts/isolated-server.ts",
