@@ -1,0 +1,75 @@
+{
+  "login": "local-read-only",
+  "angularRendered": true,
+  "productsRows": 0,
+  "formsDisabled": true,
+  "inventoryFormDisabled": true,
+  "pageErrors": [],
+  "network": [
+    {
+      "method": "POST",
+      "path": "/api/auth/read-only-session",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/products",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/production-orders",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/consumptions",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/materials",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/lots",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/clients",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/ingresos-mp",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/inventory",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/quality",
+      "status": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/orders",
+      "status": 200
+    }
+  ]
+}

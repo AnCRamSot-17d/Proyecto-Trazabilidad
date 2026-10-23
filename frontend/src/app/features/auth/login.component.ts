@@ -108,6 +108,8 @@ import { AuthService } from '../../core/services/auth.service';
           </div>
 
           <form (ngSubmit)="handleLogin()" class="form-grid">
+            <label class="field-label"><input type="checkbox" name="readOnlyAccess" [(ngModel)]="readOnlyAccess"> Consulta local de solo lectura</label>
+            <p *ngIf="readOnlyAccess">Utiliza la clave local de consulta. Este acceso no permite guardar ni modificar registros.</p>
             
             <!-- Campo: Correo Institucional -->
             <div class="field-group">
@@ -125,7 +127,7 @@ import { AuthService } from '../../core/services/auth.service';
                   class="text-input"
                   [(ngModel)]="email"
                   name="email"
-                  required
+                  [required]="!readOnlyAccess"
                   placeholder="ejemplo@biotrace.com"
                   [disabled]="isLoading()"
                 />
@@ -135,7 +137,7 @@ import { AuthService } from '../../core/services/auth.service';
             <!-- Campo: Contraseña con Toggle de Visibilidad -->
             <div class="field-group">
               <div class="field-label-row">
-                <label class="field-label" for="passwordInput">Contraseña</label>
+                <label class="field-label" for="passwordInput">{{ readOnlyAccess ? 'Clave local de consulta' : 'Contraseña' }}</label>
                 <span class="token-hint">Estación Autorizada</span>
               </div>
               <div class="input-container">
@@ -554,6 +556,7 @@ export class LoginComponent {
   auth = inject(AuthService);
   private router = inject(Router);
 
+  readOnlyAccess = false;
   email = '';
   password = '';
   showPassword = signal<boolean>(false);
@@ -567,7 +570,7 @@ export class LoginComponent {
   handleLogin() {
     if (this.isLoading()) return;
 
-    if (!this.email.trim() || !this.password.trim()) {
+    if ((!this.readOnlyAccess && !this.email.trim()) || !this.password.trim()) {
       this.errorMessage.set('Por favor ingresa tu usuario institucional y contraseña.');
       return;
     }
@@ -575,7 +578,7 @@ export class LoginComponent {
     this.isLoading.set(true);
     this.errorMessage.set('');
 
-    this.auth.login(this.email.trim(), this.password.trim()).subscribe({
+    (this.readOnlyAccess ? this.auth.loginReadOnly(this.password.trim()) : this.auth.login(this.email.trim(), this.password.trim())).subscribe({
       next: () => {
         this.isLoading.set(false);
         this.router.navigate(['/home']);

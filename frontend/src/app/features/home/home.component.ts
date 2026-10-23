@@ -1,6 +1,9 @@
 import { Component, OnInit, inject, signal, computed } from '@angular/core';
 import { CommonModule } from '@angular/common';
 import { FormsModule } from '@angular/forms';
+import { firstValueFrom } from 'rxjs';
+import { HttpErrorResponse } from '@angular/common/http';
+import { ProductRecord, MaterialRecord, ClientRecord, ReceiptRecord, InventoryRecord, OrderRecord, ProductionRecord, ConsumptionRecord, LotRecord, QualityRecord } from '../../core/models/traceability.models';
 import { ApiService } from '../../core/services/api.service';
 import { AuthService } from '../../core/services/auth.service';
 import { UiStateService, SubViewTab } from '../../core/services/ui-state.service';
@@ -103,11 +106,11 @@ export interface IngresoMateriaPrimaItem {
   loteProveedor: string;
   cantidadRecibida: number;
   unidades: string;
-  precioPorUnidad: number;
-  costoTotal: number;
+  precioPorUnidad: number | null;
+  costoTotal: number | null;
   fechaFabricacion: string;
   fechaVencimiento: string;
-  estadoCalidad: 'Aprobado' | 'Cuarentena' | 'Rechazado';
+  estadoCalidad: 'Aprobado' | 'Cuarentena' | 'Rechazado' | 'Sin registro';
   aspecto: string;
   colorOlor: string;
   phDensidad: string;
@@ -149,7 +152,7 @@ export interface ProductoItem {
   presentacion: string;
   phObjetivo: string;
   densidadObjetivo: string;
-  vidaUtilMeses: number;
+  vidaUtilMeses: number | null;
   registroSanitario: string;
   estado: string;
 }
@@ -172,6 +175,18 @@ export interface PedidoItem {
   imports: [CommonModule, FormsModule],
   template: `
     <div class="page-container">
+      <p *ngIf="readOnly()" class="highlight-box" role="status">Base protegida: consultas disponibles; guardado deshabilitado.</p>
+      <p class="highlight-box">Solo se guardan los campos habilitados. Los demás no están disponibles en el registro actual.</p>
+      <section *ngIf="ui.activeModule() === 'mp-inventario'" class="records-table-container">
+        <h3>Inventario registrado</h3>
+        <table class="records-table"><tr><th>Lote</th><th>Materia prima</th><th>Disponible</th></tr><tr *ngFor="let row of inventory"><td>{{row.lote_interno}}</td><td>{{row.materia_prima.nombre_insumo}}</td><td>{{row.stock_disponible}} {{row.materia_prima.unidad_medida}}</td></tr></table>
+        <h3>Registrar materia prima</h3>
+        <form (ngSubmit)="guardarMateriaPrima()" class="form-grid"><input class="field-input" name="materialCode" placeholder="Código" [(ngModel)]="materialForm.codigo_materia_prima" required><input class="field-input" name="materialName" placeholder="Nombre" [(ngModel)]="materialForm.nombre_insumo" required><input class="field-input" name="materialUnit" placeholder="Unidad" [(ngModel)]="materialForm.unidad_medida" required><button class="btn btn-primary" [disabled]="readOnly()">Guardar materia prima</button></form>
+      </section>
+      <section *ngIf="ui.activeModule() === 'calidad-liberacion'" class="records-table-container"><table class="records-table"><tr><th>Lote</th><th>Muestra aprobada</th><th>Analista</th><th>Revisor</th></tr><tr *ngFor="let row of quality"><td>{{row.orden.lote}}</td><td>{{row.muestra_aprobada ? 'Si' : 'No'}}</td><td>{{row.analizado_por}}</td><td>{{row.revisado_por}}</td></tr></table></section>
+      <section *ngIf="ui.activeModule().startsWith('trazabilidad-')" class="highlight-box">
+        <h3>Consultar trazabilidad registrada</h3><select class="field-select" [(ngModel)]="traceId"><ng-container *ngIf="ui.activeModule() === 'trazabilidad-forward'"><option *ngFor="let row of inventory" [value]="row.id">{{row.lote_interno}}</option></ng-container><ng-container *ngIf="ui.activeModule() === 'trazabilidad-backward'"><option *ngFor="let row of lots" [value]="row.id">{{row.orden.lote}} / {{row.id}}</option></ng-container></select><button class="btn btn-primary" (click)="consultarTrazabilidad()">Consultar</button><pre style="white-space:pre-wrap;overflow-wrap:anywhere">{{traceResult | json}}</pre>
+      </section>
       
       <!-- ======================================================== -->
       <!-- CASO 1: VISTA DE ESTACIÓN SELECCIONADA DESDE EL SIDEBAR  -->
@@ -289,26 +304,12 @@ export interface PedidoItem {
               <div class="form-grid form-grid--3">
                 <div class="form-field">
                   <label class="field-label">Materia Prima / Principio Activo <span class="req">*</span></label>
-                  <input
-                    type="text"
-                    [(ngModel)]="formMp.producto"
-                    name="producto"
-                    required
-                    placeholder="Ej. Ácido Hialurónico Puro 2%"
-                    class="field-input"
-                  />
+                  <input [(ngModel)]="formMp.producto" name="producto" class="field-input" [disabled]="true" />
                 </div>
 
                 <div class="form-field">
                   <label class="field-label">Código Interno de Insumo <span class="req">*</span></label>
-                  <input
-                    type="text"
-                    [(ngModel)]="formMp.codigoInsumo"
-                    name="codigoInsumo"
-                    required
-                    placeholder="MP-AH-001"
-                    class="field-input font-mono"
-                  />
+                  <select [(ngModel)]="formMp.codigoInsumo" (ngModelChange)="seleccionarMateriaPrima()" name="codigoInsumo" required class="field-select"><option *ngFor="let material of materials" [value]="material.codigo_materia_prima">{{material.codigo_materia_prima}} / {{material.nombre_insumo}}</option></select>
                 </div>
 
                 <div class="form-field">
@@ -325,7 +326,7 @@ export interface PedidoItem {
 
                 <div class="form-field">
                   <label class="field-label">Orden de Compra / Remisión <span class="req">*</span></label>
-                  <input
+                  <input [disabled]="true" title="Campo no disponible en el registro actual"
                     type="text"
                     [(ngModel)]="formMp.ordenCompra"
                     name="ordenCompra"
@@ -336,7 +337,7 @@ export interface PedidoItem {
 
                 <div class="form-field">
                   <label class="field-label">País / Laboratorio Fabricante</label>
-                  <input
+                  <input [disabled]="true" title="Campo no disponible en el registro actual"
                     type="text"
                     [(ngModel)]="formMp.paisOrigen"
                     name="paisOrigen"
@@ -407,19 +408,13 @@ export interface PedidoItem {
                       placeholder="25.000"
                       class="field-input group-input"
                     />
-                    <select [(ngModel)]="formMp.unidades" name="unidades" class="group-select">
-                      <option value="kg">kg</option>
-                      <option value="g">g</option>
-                      <option value="L">L</option>
-                      <option value="mL">mL</option>
-                      <option value="UN">UN</option>
-                    </select>
+                    <input [(ngModel)]="formMp.unidades" name="unidades" class="field-input" [disabled]="true" />
                   </div>
                 </div>
 
                 <div class="form-field">
                   <label class="field-label">Precio Unitario ($ / Unidad)</label>
-                  <input
+                  <input [disabled]="true" title="Campo no disponible en el registro actual"
                     type="number"
                     step="100"
                     [(ngModel)]="formMp.precioPorUnidad"
@@ -431,7 +426,7 @@ export interface PedidoItem {
 
                 <div class="form-field">
                   <label class="field-label">Fecha de Recepción en Planta <span class="req">*</span></label>
-                  <input
+                  <input [disabled]="true" title="Campo no disponible en el registro actual"
                     type="date"
                     [(ngModel)]="formMp.fechaRecepcion"
                     name="fechaRecepcion"
@@ -442,7 +437,7 @@ export interface PedidoItem {
 
                 <div class="form-field">
                   <label class="field-label">Fecha de Vencimiento / Reanálisis <span class="req">*</span></label>
-                  <input
+                  <input [disabled]="true" title="Campo no disponible en el registro actual"
                     type="date"
                     [(ngModel)]="formMp.fechaVencimiento"
                     name="fechaVencimiento"
@@ -484,7 +479,7 @@ export interface PedidoItem {
               <div class="form-grid form-grid--3">
                 <div class="form-field">
                   <label class="field-label">Aspecto Físico</label>
-                  <input
+                  <input [disabled]="true" title="Campo no disponible en el registro actual"
                     type="text"
                     [(ngModel)]="formMp.aspecto"
                     name="aspecto"
@@ -495,7 +490,7 @@ export interface PedidoItem {
 
                 <div class="form-field">
                   <label class="field-label">Color & Olor</label>
-                  <input
+                  <input [disabled]="true" title="Campo no disponible en el registro actual"
                     type="text"
                     [(ngModel)]="formMp.colorOlor"
                     name="colorOlor"
@@ -506,7 +501,7 @@ export interface PedidoItem {
 
                 <div class="form-field">
                   <label class="field-label">pH / Densidad / Pureza</label>
-                  <input
+                  <input [disabled]="true" title="Campo no disponible en el registro actual"
                     type="text"
                     [(ngModel)]="formMp.phDensidad"
                     name="phDensidad"
@@ -586,7 +581,7 @@ export interface PedidoItem {
               <div class="form-grid form-grid--3">
                 <div class="form-field">
                   <label class="field-label">Analista / Químico Receptor</label>
-                  <input
+                  <input [disabled]="true" title="Campo no disponible en el registro actual"
                     type="text"
                     [(ngModel)]="formMp.liberadoPor"
                     name="liberadoPor"
@@ -597,7 +592,7 @@ export interface PedidoItem {
 
                 <div class="form-field">
                   <label class="field-label">Temperatura de Recepción</label>
-                  <input
+                  <input [disabled]="true" title="Campo no disponible en el registro actual"
                     type="text"
                     [(ngModel)]="formMp.temperatura"
                     name="temperatura"
@@ -608,7 +603,7 @@ export interface PedidoItem {
 
                 <div class="form-field">
                   <label class="field-label">Humedad Relativa (% HR)</label>
-                  <input
+                  <input [disabled]="true" title="Campo no disponible en el registro actual"
                     type="text"
                     [(ngModel)]="formMp.humedad"
                     name="humedad"
@@ -619,7 +614,7 @@ export interface PedidoItem {
 
                 <div class="form-field form-field--full">
                   <label class="field-label">Observaciones Técnicas de Empaque y Precinto</label>
-                  <textarea
+                  <textarea [disabled]="true" title="Campo no disponible en el registro actual"
                     [(ngModel)]="formMp.observaciones"
                     name="observaciones"
                     rows="3"
@@ -632,7 +627,7 @@ export interface PedidoItem {
 
             <!-- Acciones de Pie de Formulario -->
             <div class="form-actions-bar">
-              <button type="submit" class="btn btn-primary btn-lg">
+              <button [disabled]="readOnly()" type="submit" class="btn btn-primary btn-lg">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
                   <polyline points="17 21 17 13 7 13 7 21"></polyline>
@@ -671,19 +666,12 @@ export interface PedidoItem {
               <div class="form-grid form-grid--3">
                 <div class="form-field">
                   <label class="field-label">Orden de Mezcla / Formulación <span class="req">*</span></label>
-                  <input
-                    type="text"
-                    [(ngModel)]="formConsumo.ordenMezcla"
-                    name="ordenMezcla"
-                    required
-                    placeholder="OM-2026-0042"
-                    class="field-input font-mono"
-                  />
+                  <select [(ngModel)]="formConsumo.ordenMezcla" name="ordenMezcla" required class="field-select"><option *ngFor="let order of productionOrders" [value]="order.lote">{{order.lote}} / {{order.nombre_producto}}</option></select>
                 </div>
 
                 <div class="form-field">
                   <label class="field-label">Reactor de Destino <span class="req">*</span></label>
-                  <select [(ngModel)]="formConsumo.reactor" name="reactor" required class="field-select">
+                  <select [disabled]="true" title="Campo no disponible en el registro actual" [(ngModel)]="formConsumo.reactor" name="reactor" required class="field-select">
                     <option value="Reactor Principal R-01 (1000L)">Reactor Principal R-01 (1000 L)</option>
                     <option value="Reactor Piloto R-02 (250L)">Reactor Piloto R-02 (250 L)</option>
                     <option value="Marmita Homogeneizadora M-01 (500L)">Marmita Homogeneizadora M-01 (500 L)</option>
@@ -692,23 +680,12 @@ export interface PedidoItem {
 
                 <div class="form-field">
                   <label class="field-label">Materia Prima a Dosificar <span class="req">*</span></label>
-                  <select [(ngModel)]="formConsumo.materiaPrima" name="materiaPrima" required class="field-select">
-                    <option *ngFor="let mp of recordsMpIngreso" [value]="mp.producto">
-                      {{ mp.producto }} (Lote: {{ mp.loteInterno }})
-                    </option>
-                  </select>
+                  <input [(ngModel)]="formConsumo.materiaPrima" name="materiaPrima" class="field-input" [disabled]="true" />
                 </div>
 
                 <div class="form-field">
                   <label class="field-label">Lote de Insumo Seleccionado <span class="req">*</span></label>
-                  <input
-                    type="text"
-                    [(ngModel)]="formConsumo.loteConsumido"
-                    name="loteConsumido"
-                    required
-                    placeholder="MP-2026-0512"
-                    class="field-input font-mono"
-                  />
+                  <select [(ngModel)]="formConsumo.loteConsumido" (ngModelChange)="seleccionarInventario()" name="loteConsumido" required class="field-select"><option *ngFor="let lot of inventory" [value]="lot.lote_interno">{{lot.lote_interno}} / {{lot.stock_disponible}} {{lot.materia_prima.unidad_medida}}</option></select>
                 </div>
 
                 <div class="form-field">
@@ -724,18 +701,13 @@ export interface PedidoItem {
                       placeholder="12.500"
                       class="field-input group-input"
                     />
-                    <select [(ngModel)]="formConsumo.unidad" name="unidad" class="group-select">
-                      <option value="kg">kg</option>
-                      <option value="g">g</option>
-                      <option value="L">L</option>
-                      <option value="mL">mL</option>
-                    </select>
+                    <input [(ngModel)]="formConsumo.unidad" name="unidad" class="field-input" [disabled]="true" />
                   </div>
                 </div>
 
                 <div class="form-field">
                   <label class="field-label">Responsable de Pesada</label>
-                  <input
+                  <input [disabled]="true" title="Campo no disponible en el registro actual"
                     type="text"
                     [(ngModel)]="formConsumo.responsablePesada"
                     name="responsablePesada"
@@ -747,7 +719,7 @@ export interface PedidoItem {
             </div>
 
             <div class="form-actions-bar">
-              <button type="submit" class="btn btn-primary btn-lg">
+              <button [disabled]="readOnly()" type="submit" class="btn btn-primary btn-lg">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
                 </svg>
@@ -787,7 +759,7 @@ export interface PedidoItem {
 
                 <div class="form-field">
                   <label class="field-label">NIT / Identificación Fiscal <span class="req">*</span></label>
-                  <input
+                  <input [disabled]="true" title="Campo no disponible en el registro actual"
                     type="text"
                     [(ngModel)]="formCliente.nit"
                     name="nit"
@@ -832,7 +804,7 @@ export interface PedidoItem {
 
                 <div class="form-field">
                   <label class="field-label">Ciudad de Entrega</label>
-                  <input
+                  <input [disabled]="true" title="Campo no disponible en el registro actual"
                     type="text"
                     [(ngModel)]="formCliente.ciudad"
                     name="ciudad"
@@ -844,7 +816,7 @@ export interface PedidoItem {
             </div>
 
             <div class="form-actions-bar">
-              <button type="submit" class="btn btn-primary btn-lg">
+              <button [disabled]="readOnly()" type="submit" class="btn btn-primary btn-lg">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
                 </svg>
@@ -907,7 +879,7 @@ export interface PedidoItem {
 
                 <div class="form-field">
                   <label class="field-label">pH Objetivo Especificado</label>
-                  <input
+                  <input [disabled]="true" title="Campo no disponible en el registro actual"
                     type="text"
                     [(ngModel)]="formProducto.phObjetivo"
                     name="phObjetivo"
@@ -918,7 +890,7 @@ export interface PedidoItem {
 
                 <div class="form-field">
                   <label class="field-label">Densidad Teórica (g/mL)</label>
-                  <input
+                  <input [disabled]="true" title="Campo no disponible en el registro actual"
                     type="text"
                     [(ngModel)]="formProducto.densidadObjetivo"
                     name="densidadObjetivo"
@@ -929,7 +901,7 @@ export interface PedidoItem {
 
                 <div class="form-field">
                   <label class="field-label">Vida Útil (Meses)</label>
-                  <input
+                  <input [disabled]="true" title="Campo no disponible en el registro actual"
                     type="number"
                     [(ngModel)]="formProducto.vidaUtilMeses"
                     name="vidaUtilMeses"
@@ -941,7 +913,7 @@ export interface PedidoItem {
             </div>
 
             <div class="form-actions-bar">
-              <button type="submit" class="btn btn-primary btn-lg">
+              <button [disabled]="readOnly()" type="submit" class="btn btn-primary btn-lg">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
                 </svg>
@@ -1008,7 +980,7 @@ export interface PedidoItem {
 
                 <div class="form-field">
                   <label class="field-label">Fecha Estimada de Entrega</label>
-                  <input
+                  <input [disabled]="true" title="Campo no disponible en el registro actual"
                     type="date"
                     [(ngModel)]="formPedido.fechaEntregaEstimada"
                     name="fechaEntregaEstimada"
@@ -1018,7 +990,7 @@ export interface PedidoItem {
 
                 <div class="form-field">
                   <label class="field-label">Nivel de Prioridad</label>
-                  <select [(ngModel)]="formPedido.prioridad" name="prioridad" class="field-select">
+                  <select [disabled]="true" title="Campo no disponible en el registro actual" [(ngModel)]="formPedido.prioridad" name="prioridad" class="field-select">
                     <option value="ESTÁNDAR">Estándar (Despacho habitual)</option>
                     <option value="ALTA">Alta Prioridad (Clínica / Hospital)</option>
                     <option value="URGENTE">Urgente Inmediata</option>
@@ -1028,7 +1000,7 @@ export interface PedidoItem {
             </div>
 
             <div class="form-actions-bar">
-              <button type="submit" class="btn btn-primary btn-lg">
+              <label>Precio unitario <input class="field-input" type="number" min="0" step="0.01" name="precioPedido" [(ngModel)]="precioPedido" required></label><button [disabled]="readOnly()" type="submit" class="btn btn-primary btn-lg">
                 <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
                   <path d="M19 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h11l5 5v11a2 2 0 0 1-2 2z"></path>
                 </svg>
@@ -1172,8 +1144,8 @@ export interface PedidoItem {
                     <!-- Precio / Costo -->
                     <td style="text-align: right;">
                       <div class="table-price-cell">
-                        <span class="table-price-bold">$ {{ reg.precioPorUnidad.toLocaleString('es-CO') }}</span>
-                        <small class="table-price-sub">Tot: $ {{ reg.costoTotal.toLocaleString('es-CO') }}</small>
+                        <span class="table-price-bold">$ {{ reg.precioPorUnidad?.toLocaleString('es-CO') ?? 'No registrado' }}</span>
+                        <small class="table-price-sub">Tot: $ {{ reg.costoTotal?.toLocaleString('es-CO') ?? 'No registrado' }}</small>
                       </div>
                     </td>
 
@@ -1399,31 +1371,8 @@ export interface PedidoItem {
             </div>
           </div>
 
-          <!-- TABLA GENÉRICA PARA OTRAS ESTACIONES -->
-          <div *ngIf="!['mp-ingreso', 'mp-consumo', 'clientes', 'productos', 'pedidos'].includes(ui.activeModule())" class="records-table-container">
-            <div class="records-table-wrap">
-              <table class="records-table">
-                <thead>
-                  <tr>
-                    <th>CÓDIGO / LOTE TÉCNICO</th>
-                    <th>DESCRIPCIÓN DEL PROCESO</th>
-                    <th>FECHA DE REGISTRO</th>
-                    <th>NORMATIVA</th>
-                    <th style="text-align: center;">ESTADO OPERATIVO</th>
-                  </tr>
-                </thead>
-                <tbody>
-                  <tr>
-                    <td><span class="lote-tag">{{ station.code }}-2026-001</span></td>
-                    <td><strong>{{ station.title }}</strong> (Registro inicial validado)</td>
-                    <td>2026-10-20</td>
-                    <td><span class="unit-badge">GMP / BPM</span></td>
-                    <td style="text-align: center;"><span class="status-pill status-pill--approved">Operativo</span></td>
-                  </tr>
-                </tbody>
-              </table>
-            </div>
-          </div>
+          <section *ngIf="ui.activeModule() === 'produccion-ordenes'" class="records-table-container"><table class="records-table"><tr><th>Lote</th><th>Producto</th><th>Cantidad</th></tr><tr *ngFor="let row of productionOrders"><td>{{row.lote}}</td><td>{{row.nombre_producto}}</td><td>{{row.cantidad_programada}}</td></tr></table></section>
+          <section *ngIf="ui.activeModule() === 'produccion-lotes'" class="records-table-container"><table class="records-table"><tr><th>Lote de orden</th><th>Registro</th><th>Unidades</th></tr><tr *ngFor="let row of lots"><td>{{row.orden.lote}}</td><td>{{row.id}}</td><td>{{row.total_unidades}}</td></tr></table></section>
 
         </div>
 
@@ -1465,7 +1414,7 @@ export interface PedidoItem {
                 <div class="detail-card">
                   <span class="detail-card-label">CANTIDAD Y PRECIO</span>
                   <strong class="detail-card-value">{{ selectedDetailItem.cantidadRecibida }} {{ selectedDetailItem.unidades }}</strong>
-                  <span class="detail-card-sub">Total: $ {{ selectedDetailItem.costoTotal.toLocaleString('es-CO') }}</span>
+                  <span class="detail-card-sub">Total: $ {{ selectedDetailItem.costoTotal?.toLocaleString('es-CO') ?? 'No registrado' }}</span>
                 </div>
 
                 <div class="detail-card">
@@ -1567,7 +1516,7 @@ export interface PedidoItem {
 
             <div class="modal-footer">
               <button type="button" class="btn btn-secondary" (click)="closeEditModal()">Cancelar</button>
-              <button type="button" class="btn btn-primary" (click)="guardarEdicion()">Guardar Cambios</button>
+              <button type="button" class="btn btn-primary" [disabled]="true" (click)="guardarEdicion()">Guardar Cambios</button>
             </div>
           </div>
         </div>
@@ -3233,283 +3182,19 @@ export class HomeComponent implements OnInit {
   };
 
   // 1. Registros de Ingreso de Materias Primas
-  recordsMpIngreso: IngresoMateriaPrimaItem[] = [
-    {
-      id: '1',
-      loteInterno: 'MP-2026-0512',
-      producto: 'Ácido Hialurónico Puro 2%',
-      codigoInsumo: 'MP-AH-001',
-      fechaRecepcion: '2026-10-20',
-      proveedor: 'Merck KGaA Laboratorios',
-      loteProveedor: 'LOT-MERCK-8831',
-      cantidadRecibida: 25.5,
-      unidades: 'kg',
-      precioPorUnidad: 185000,
-      costoTotal: 4717500,
-      fechaFabricacion: '2026-08-15',
-      fechaVencimiento: '2028-08-15',
-      estadoCalidad: 'Aprobado',
-      aspecto: 'Polvo microcristalino blanco homogéneo',
-      colorOlor: 'Inodoro / Blanco puro característico',
-      phDensidad: 'pH: 6.45 (solución 1%) / Pureza: 99.2%',
-      coaArchivo: 'COA-MERCK-AH-8831.pdf',
-      liberadoPor: 'admin@biotrace.com (Ing. Administrador)',
-      observaciones: 'Empaque sellado al vacío en tambor grado farma.'
-    },
-    {
-      id: '2',
-      loteInterno: 'MP-2026-0489',
-      producto: 'Niacinamida Grado USP 99%',
-      codigoInsumo: 'MP-NC-002',
-      fechaRecepcion: '2026-10-18',
-      proveedor: 'BASF Nutrition & Health',
-      loteProveedor: 'LOT-BASF-4410',
-      cantidadRecibida: 50.0,
-      unidades: 'kg',
-      precioPorUnidad: 62000,
-      costoTotal: 3100000,
-      fechaFabricacion: '2026-07-10',
-      fechaVencimiento: '2028-07-10',
-      estadoCalidad: 'Aprobado',
-      aspecto: 'Polvo cristalino blanco fino',
-      colorOlor: 'Inodoro conforme USP',
-      phDensidad: 'pH: 6.80 / Pureza: 99.8%',
-      coaArchivo: 'COA-BASF-NC-4410.pdf',
-      liberadoPor: 'admin@biotrace.com (Ing. Administrador)',
-      observaciones: 'Bolsa termosellada intacta.'
-    },
-    {
-      id: '3',
-      loteInterno: 'MP-2026-0450',
-      producto: 'Glicerina Vegetal USP 99.7%',
-      codigoInsumo: 'MP-GV-003',
-      fechaRecepcion: '2026-10-15',
-      proveedor: 'Croda Personal Care',
-      loteProveedor: 'LOT-CR-9082',
-      cantidadRecibida: 120.0,
-      unidades: 'kg',
-      precioPorUnidad: 18500,
-      costoTotal: 2220000,
-      fechaFabricacion: '2026-06-01',
-      fechaVencimiento: '2028-06-01',
-      estadoCalidad: 'Aprobado',
-      aspecto: 'Líquido viscoso límpido transparente',
-      colorOlor: 'Inodoro / Ligeramente dulce',
-      phDensidad: 'Densidad: 1.261 g/mL',
-      coaArchivo: 'COA-CRODA-GV-9082.pdf',
-      liberadoPor: 'admin@biotrace.com (Ing. Administrador)',
-      observaciones: 'Tambor de polietileno azul con precinto de seguridad.'
-    },
-    {
-      id: '4',
-      loteInterno: 'MP-2026-0411',
-      producto: 'Vitamina C Estabilizada (SAP)',
-      codigoInsumo: 'MP-VC-004',
-      fechaRecepcion: '2026-10-12',
-      proveedor: 'Evonik Industries AG',
-      loteProveedor: 'LOT-EVK-1120',
-      cantidadRecibida: 15.0,
-      unidades: 'kg',
-      precioPorUnidad: 240000,
-      costoTotal: 3600000,
-      fechaFabricacion: '2026-08-01',
-      fechaVencimiento: '2027-08-01',
-      estadoCalidad: 'Cuarentena',
-      aspecto: 'Polvo microgranular blanco a blanco cremoso',
-      colorOlor: 'Característico suave',
-      phDensidad: 'pH: 7.0 (solución al 3%)',
-      coaArchivo: 'COA-EVK-VC-1120.pdf',
-      liberadoPor: 'Pendiente Análisis HPLC',
-      observaciones: 'En proceso de muestreo analítico en laboratorio de control de calidad.'
-    },
-    {
-      id: '5',
-      loteInterno: 'MP-2026-0390',
-      producto: 'Retinol Liposomado 1.0%',
-      codigoInsumo: 'MP-RT-005',
-      fechaRecepcion: '2026-10-08',
-      proveedor: 'Givaudan Active Beauty',
-      loteProveedor: 'LOT-GIV-7761',
-      cantidadRecibida: 8.5,
-      unidades: 'kg',
-      precioPorUnidad: 890000,
-      costoTotal: 7565000,
-      fechaFabricacion: '2026-09-01',
-      fechaVencimiento: '2027-03-01',
-      estadoCalidad: 'Aprobado',
-      aspecto: 'Dispersión liposómica fluida amarillenta',
-      colorOlor: 'Característico suave',
-      phDensidad: 'pH: 5.85 / Tamaño partícula < 200 nm',
-      coaArchivo: 'COA-GIVAUDAN-RT-7761.pdf',
-      liberadoPor: 'admin@biotrace.com (Ing. Administrador)',
-      observaciones: 'Almacenar refrigerado entre 2°C y 8°C estrictos.'
-    },
-    {
-      id: '6',
-      loteInterno: 'MP-2026-0365',
-      producto: 'Extracto Glicólico de Centella Asiática',
-      codigoInsumo: 'MP-CA-006',
-      fechaRecepcion: '2026-10-02',
-      proveedor: 'Indena Pharma Extracts',
-      loteProveedor: 'LOT-IND-3209',
-      cantidadRecibida: 30.0,
-      unidades: 'kg',
-      precioPorUnidad: 95000,
-      costoTotal: 2850000,
-      fechaFabricacion: '2026-05-15',
-      fechaVencimiento: '2028-05-15',
-      estadoCalidad: 'Aprobado',
-      aspecto: 'Líquido translúcido ámbar claro',
-      colorOlor: 'Herbal característico',
-      phDensidad: 'pH: 5.10 / Densidad: 1.12 g/mL',
-      coaArchivo: 'COA-INDENA-CA-3209.pdf',
-      liberadoPor: 'admin@biotrace.com (Ing. Administrador)',
-      observaciones: 'Bidón opaco protegido de la luz solar.'
-    }
-  ];
+  recordsMpIngreso: IngresoMateriaPrimaItem[] = [];
 
   // 2. Registros de Consumo
-  recordsConsumo: ConsumoItem[] = [
-    {
-      id: 'c1',
-      ordenMezcla: 'OM-2026-0042',
-      reactor: 'Reactor Principal R-01 (1000L)',
-      materiaPrima: 'Ácido Hialurónico Puro 2%',
-      loteConsumido: 'MP-2026-0512',
-      cantidadDosificada: 10.0,
-      unidad: 'kg',
-      fechaConsumo: '2026-10-20 08:30',
-      responsablePesada: 'admin@biotrace.com',
-      estado: 'Dosificado'
-    },
-    {
-      id: 'c2',
-      ordenMezcla: 'OM-2026-0042',
-      reactor: 'Reactor Principal R-01 (1000L)',
-      materiaPrima: 'Glicerina Vegetal USP 99.7%',
-      loteConsumido: 'MP-2026-0450',
-      cantidadDosificada: 40.0,
-      unidad: 'kg',
-      fechaConsumo: '2026-10-20 09:15',
-      responsablePesada: 'admin@biotrace.com',
-      estado: 'Dosificado'
-    },
-    {
-      id: 'c3',
-      ordenMezcla: 'OM-2026-0039',
-      reactor: 'Reactor Piloto R-02 (250L)',
-      materiaPrima: 'Niacinamida Grado USP 99%',
-      loteConsumido: 'MP-2026-0489',
-      cantidadDosificada: 12.5,
-      unidad: 'kg',
-      fechaConsumo: '2026-10-19 14:20',
-      responsablePesada: 'admin@biotrace.com',
-      estado: 'Dosificado'
-    }
-  ];
+  recordsConsumo: ConsumoItem[] = [];
 
   // 3. Registros de Clientes
-  recordsClientes: ClienteItem[] = [
-    {
-      id: 'cl1',
-      razonSocial: 'DermoSalud Especializada S.A.S',
-      nit: '900.542.118-2',
-      contacto: 'Dra. Juliana Martínez',
-      correo: 'compras@dermosalud.com',
-      telefono: '+57 (601) 840 2200',
-      ciudad: 'Bogotá D.C.',
-      direccion: 'Carrera 15 # 93-40 Piso 4',
-      categoria: 'Clínica Dermatológica',
-      estado: 'Activo'
-    },
-    {
-      id: 'cl2',
-      razonSocial: 'Farmacias DermoPiel Central Ltda',
-      nit: '860.104.992-1',
-      contacto: 'Dr. Roberto Gómez',
-      correo: 'pedidos@dermopiel.com',
-      telefono: '+57 (604) 448 1020',
-      ciudad: 'Medellín',
-      direccion: 'Calle 10 # 42-28 El Poblado',
-      categoria: 'Cadena de Farmacias',
-      estado: 'Activo'
-    },
-    {
-      id: 'cl3',
-      razonSocial: 'BioCosmetics Lab Distribuidora',
-      nit: '901.229.401-8',
-      contacto: 'Ing. Carlos Valencia',
-      correo: 'operaciones@biocosmetics.com',
-      telefono: '+57 (602) 660 8890',
-      ciudad: 'Cali',
-      direccion: 'Avenida 6N # 24N-10',
-      categoria: 'Distribuidor Mayorista',
-      estado: 'Activo'
-    }
-  ];
+  recordsClientes: ClienteItem[] = [];
 
   // 4. Registros de Productos
-  recordsProductos: ProductoItem[] = [
-    {
-      id: 'pr1',
-      codigoGalenico: 'PROD-SERUM-01',
-      nombreComercial: 'Sérum Restaurador Hialurónico B5',
-      presentacion: 'Frasco Gotero Vidrio Ámbar 30 mL',
-      phObjetivo: '5.20 - 5.60',
-      densidadObjetivo: '1.025',
-      vidaUtilMeses: 24,
-      registroSanitario: 'NSOC98124-21CO',
-      estado: 'Aprobado'
-    },
-    {
-      id: 'pr2',
-      codigoGalenico: 'PROD-GEL-02',
-      nombreComercial: 'Gel Hidratante Niacinamida 10% + Zinc',
-      presentacion: 'Pomo Airless 50 g',
-      phObjetivo: '5.80 - 6.20',
-      densidadObjetivo: '1.010',
-      vidaUtilMeses: 24,
-      registroSanitario: 'NSOC99401-22CO',
-      estado: 'Aprobado'
-    },
-    {
-      id: 'pr3',
-      codigoGalenico: 'PROD-CREM-03',
-      nombreComercial: 'Crema Reparadora de Barrera Ceramidas',
-      presentacion: 'Tubo Laminado 60 g',
-      phObjetivo: '5.50 - 6.00',
-      densidadObjetivo: '0.985',
-      vidaUtilMeses: 36,
-      registroSanitario: 'NSOC88210-20CO',
-      estado: 'Aprobado'
-    }
-  ];
+  recordsProductos: ProductoItem[] = [];
 
   // 5. Registros de Pedidos
-  recordsPedidos: PedidoItem[] = [
-    {
-      id: 'ped1',
-      numeroPedido: 'PED-2026-0812',
-      cliente: 'DermoSalud Especializada S.A.S',
-      producto: 'Sérum Restaurador Hialurónico B5',
-      cantidadUnidades: 500,
-      fechaOrden: '2026-10-18',
-      fechaEntregaEstimada: '2026-10-25',
-      prioridad: 'ALTA',
-      estado: 'En Preparación'
-    },
-    {
-      id: 'ped2',
-      numeroPedido: 'PED-2026-0809',
-      cliente: 'Farmacias DermoPiel Central Ltda',
-      producto: 'Gel Hidratante Niacinamida 10% + Zinc',
-      cantidadUnidades: 1200,
-      fechaOrden: '2026-10-16',
-      fechaEntregaEstimada: '2026-10-28',
-      prioridad: 'ESTÁNDAR',
-      estado: 'Aprobado'
-    }
-  ];
+  recordsPedidos: PedidoItem[] = [];
 
   currentStation = computed<StationMetadata | null>(() => {
     const mod = this.ui.activeModule();
@@ -3527,13 +3212,45 @@ export class HomeComponent implements OnInit {
     return 1;
   });
 
-  ngOnInit() {
-    this.api.getHealth().subscribe({
-      next: (res) => this.isOnline.set(res.status === 'ok'),
-      error: () => this.isOnline.set(false),
-    });
+  readOnly = signal(true);
+  inventory: InventoryRecord[] = [];
+  materials: MaterialRecord[] = [];
+  productionOrders: ProductionRecord[] = [];
+  lots: LotRecord[] = [];
+  quality: QualityRecord[] = [];
+  precioPedido = 0;
+  traceId = '';
+  traceResult: unknown = null;
+  materialForm = { codigo_materia_prima: '', nombre_insumo: '', unidad_medida: 'kg' };
+  async ngOnInit() { await this.reload(); }
+  private fail(error: unknown) {
+    this.feedbackMessage.set(error instanceof HttpErrorResponse ? error.error?.error || 'No se pudo completar la solicitud.' : error instanceof Error ? error.message : 'Error inesperado.');
   }
-
+  async reload() {
+    try {
+      const health = await firstValueFrom(this.api.getHealth()); this.isOnline.set(true); this.readOnly.set(health.readOnly);
+      const [products, materials, clients, receipts, inventory, orders, productions, consumptions, lots, quality] = await Promise.all([
+        firstValueFrom(this.api.list<ProductRecord>('products')), firstValueFrom(this.api.list<MaterialRecord>('materials')),
+        firstValueFrom(this.api.list<ClientRecord>('clients')), firstValueFrom(this.api.list<ReceiptRecord>('ingresos-mp')),
+        firstValueFrom(this.api.list<InventoryRecord>('inventory')), firstValueFrom(this.api.list<OrderRecord>('orders')),
+        firstValueFrom(this.api.list<ProductionRecord>('production-orders')), firstValueFrom(this.api.list<ConsumptionRecord>('consumptions')),
+        firstValueFrom(this.api.list<LotRecord>('lots')), firstValueFrom(this.api.list<QualityRecord>('quality'))
+      ]);
+      this.materials = materials; this.inventory = inventory; this.productionOrders = productions; this.lots = lots; this.quality = quality;
+      this.recordsProductos = products.map(p => ({ id:p.id, codigoGalenico:p.codigo_unico, nombreComercial:p.nombre_producto, presentacion:p.presentaciones ?? '', phObjetivo:'', densidadObjetivo:'', vidaUtilMeses:null, registroSanitario:'', estado:'' }));
+      this.recordsClientes = clients.map(c => ({ id:c.id, razonSocial:c.nombre_empresa, nit:'', contacto:c.persona_contacto, correo:c.email, telefono:c.telefono, ciudad:'', direccion:c.direccion ?? '', categoria:'', estado:'' }));
+      this.recordsMpIngreso = receipts.map(r => ({ id:r.id, loteInterno:r.inventario.lote_interno, producto:r.materia_prima.nombre_insumo, codigoInsumo:r.materia_prima.codigo_materia_prima, fechaRecepcion:r.fecha_ingreso.slice(0,10), proveedor:r.proveedor, loteProveedor:r.lote_proveedor, cantidadRecibida:Number(r.cantidad_recibida), unidades:r.materia_prima.unidad_medida, precioPorUnidad:null, costoTotal:null, fechaFabricacion:'', fechaVencimiento:'', estadoCalidad:'Sin registro', aspecto:'', colorOlor:'', phDensidad:'', coaArchivo:'', liberadoPor:'', observaciones:'' }));
+      this.recordsPedidos = orders.map(o => ({ id:o.id, numeroPedido:o.numero_pedido, cliente:o.cliente.nombre_empresa, producto:o.detalles.map(d=>d.nombre_producto).join(', '), cantidadUnidades:o.detalles.reduce((n,d)=>n+d.cantidad,0), fechaOrden:o.fecha_pedido.slice(0,10), fechaEntregaEstimada:'', prioridad:'', estado:o.estado }));
+      this.recordsConsumo = consumptions.flatMap(c=>c.detalles.map(d=>({ id:c.id, ordenMezcla:c.orden.lote, reactor:'', materiaPrima:d.materia_prima.nombre_insumo, loteConsumido:d.inventario.lote_interno, cantidadDosificada:Number(d.peso_real_consumido), unidad:c.unidad_lote, fechaConsumo:c.fecha_consumo, responsablePesada:'', estado:'' })));
+    } catch(error) { this.isOnline.set(false); this.fail(error); }
+  }
+  private async save(resource: string, body: unknown) {
+    try { await firstValueFrom(this.api.create(resource, body)); await this.reload(); this.feedbackMessage.set(this.isOnline() ? 'Registro guardado en PostgreSQL.' : 'Registro guardado; no se pudo recargar la lista.'); this.setTab('list'); } catch(error) { this.fail(error); }
+  }
+  seleccionarMateriaPrima() { const material=this.materials.find(m=>m.codigo_materia_prima===this.formMp.codigoInsumo); this.formMp.producto=material?.nombre_insumo ?? ''; this.formMp.unidades=material?.unidad_medida ?? ''; }
+  seleccionarInventario() { const lot=this.inventory.find(i=>i.lote_interno===this.formConsumo.loteConsumido); this.formConsumo.materiaPrima=lot?.materia_prima.nombre_insumo ?? ''; this.formConsumo.unidad=lot?.materia_prima.unidad_medida ?? ''; }
+  guardarMateriaPrima() { return this.save('materials', this.materialForm); }
+  async consultarTrazabilidad() { try { this.traceResult = await firstValueFrom(this.api.trace(this.ui.activeModule() === 'trazabilidad-forward' ? 'forward' : 'backward', this.traceId)); } catch(error) { this.traceResult = null; this.fail(error); } }
   setTab(tab: SubViewTab) {
     this.ui.activeTab.set(tab);
   }
@@ -3575,42 +3292,11 @@ export class HomeComponent implements OnInit {
 
   // Guardado de Materia Prima
   guardarIngresoMP() {
-    if (!this.formMp.producto || !this.formMp.loteInterno) return;
-
-    const cant = Number(this.formMp.cantidadRecibida) || 0;
-    const precio = Number(this.formMp.precioPorUnidad) || 0;
-    const nuevo: IngresoMateriaPrimaItem = {
-      id: Date.now().toString(),
-      loteInterno: this.formMp.loteInterno.trim(),
-      producto: this.formMp.producto.trim(),
-      codigoInsumo: this.formMp.codigoInsumo.trim(),
-      fechaRecepcion: this.formMp.fechaRecepcion,
-      proveedor: this.formMp.proveedor,
-      loteProveedor: this.formMp.loteProveedor.trim(),
-      cantidadRecibida: cant,
-      unidades: this.formMp.unidades,
-      precioPorUnidad: precio,
-      costoTotal: cant * precio,
-      fechaFabricacion: this.formMp.fechaFabricacion,
-      fechaVencimiento: this.formMp.fechaVencimiento,
-      estadoCalidad: this.formMp.estadoCalidad,
-      aspecto: this.formMp.aspecto,
-      colorOlor: this.formMp.colorOlor,
-      phDensidad: this.formMp.phDensidad,
-      coaArchivo: this.formMp.coaArchivo,
-      liberadoPor: this.formMp.liberadoPor,
-      observaciones: this.formMp.observaciones
-    };
-
-    this.recordsMpIngreso.unshift(nuevo);
-    this.feedbackMessage.set(`¡Lote ${nuevo.loteInterno} (${nuevo.producto}) registrado con éxito en el sistema GMP!`);
-    
-    // Auto-ocultar feedback tras 4 segundos
-    setTimeout(() => this.feedbackMessage.set(null), 4000);
-
-    // Cambiar a vista de registros para ver el ítem ingresado
-    this.setTab('list');
+    const material = this.materials.find(m=>m.codigo_materia_prima === this.formMp.codigoInsumo);
+    if (!material) { this.feedbackMessage.set('Registre primero la materia prima con ese código.'); return; }
+    return this.save('ingresos-mp', { materia_prima_id: material.id, lote_interno:this.formMp.loteInterno, lote_proveedor:this.formMp.loteProveedor, cantidad_recibida:Number(this.formMp.cantidadRecibida), proveedor:this.formMp.proveedor });
   }
+
 
   resetFormMp() {
     this.formMp.producto = '';
@@ -3622,85 +3308,33 @@ export class HomeComponent implements OnInit {
 
   // Guardado de Consumo
   guardarConsumoMP() {
-    const nuevo: ConsumoItem = {
-      id: Date.now().toString(),
-      ordenMezcla: this.formConsumo.ordenMezcla,
-      reactor: this.formConsumo.reactor,
-      materiaPrima: this.formConsumo.materiaPrima,
-      loteConsumido: this.formConsumo.loteConsumido,
-      cantidadDosificada: Number(this.formConsumo.cantidadDosificada) || 0,
-      unidad: this.formConsumo.unidad,
-      fechaConsumo: new Date().toISOString().replace('T', ' ').substring(0, 16),
-      responsablePesada: this.formConsumo.responsablePesada,
-      estado: 'Dosificado'
-    };
-
-    this.recordsConsumo.unshift(nuevo);
-    this.feedbackMessage.set(`¡Consumo de ${nuevo.cantidadDosificada} ${nuevo.unidad} para la orden ${nuevo.ordenMezcla} registrado!`);
-    setTimeout(() => this.feedbackMessage.set(null), 4000);
-    this.setTab('list');
+    const order = this.productionOrders.find(o=>o.lote === this.formConsumo.ordenMezcla);
+    const lot = this.inventory.find(i=>i.lote_interno === this.formConsumo.loteConsumido);
+    if (!order || !lot) { this.feedbackMessage.set('Seleccione una orden y un lote existentes.'); return; }
+    return this.save('consumptions', { orden_id:order.id, lote_total_fabricar:Number(order.cantidad_programada), unidad_lote:lot.materia_prima.unidad_medida, detalles:[{ materia_prima_id:lot.materia_prima_id, inventario_id:lot.id, cantidad_programada:Number(this.formConsumo.cantidadDosificada), peso_real_consumido:Number(this.formConsumo.cantidadDosificada) }] });
   }
+
 
   // Guardado de Cliente
   guardarCliente() {
-    const nuevo: ClienteItem = {
-      id: Date.now().toString(),
-      razonSocial: this.formCliente.razonSocial,
-      nit: this.formCliente.nit,
-      contacto: this.formCliente.contacto,
-      correo: this.formCliente.correo,
-      telefono: this.formCliente.telefono,
-      ciudad: this.formCliente.ciudad,
-      direccion: 'Sede Principal',
-      categoria: 'Cliente Homologado',
-      estado: 'Activo'
-    };
-
-    this.recordsClientes.unshift(nuevo);
-    this.feedbackMessage.set(`¡Cliente ${nuevo.razonSocial} homologado y registrado!`);
-    setTimeout(() => this.feedbackMessage.set(null), 4000);
-    this.setTab('list');
+    return this.save('clients', { nombre_empresa:this.formCliente.razonSocial, persona_contacto:this.formCliente.contacto, email:this.formCliente.correo, telefono:this.formCliente.telefono });
   }
+
 
   // Guardado de Producto
   guardarProducto() {
-    const nuevo: ProductoItem = {
-      id: Date.now().toString(),
-      codigoGalenico: this.formProducto.codigoGalenico,
-      nombreComercial: this.formProducto.nombreComercial,
-      presentacion: this.formProducto.presentacion,
-      phObjetivo: this.formProducto.phObjetivo,
-      densidadObjetivo: this.formProducto.densidadObjetivo,
-      vidaUtilMeses: this.formProducto.vidaUtilMeses,
-      registroSanitario: 'NSOC-2026-TRAMITE',
-      estado: 'Aprobado'
-    };
-
-    this.recordsProductos.unshift(nuevo);
-    this.feedbackMessage.set(`¡Producto ${nuevo.nombreComercial} incorporado al catálogo oficial!`);
-    setTimeout(() => this.feedbackMessage.set(null), 4000);
-    this.setTab('list');
+    return this.save('products', { codigo_unico:this.formProducto.codigoGalenico, nombre_producto:this.formProducto.nombreComercial, presentaciones:this.formProducto.presentacion });
   }
+
 
   // Guardado de Pedido
   guardarPedido() {
-    const nuevo: PedidoItem = {
-      id: Date.now().toString(),
-      numeroPedido: this.formPedido.numeroPedido,
-      cliente: this.formPedido.cliente,
-      producto: this.formPedido.producto,
-      cantidadUnidades: Number(this.formPedido.cantidadUnidades) || 100,
-      fechaOrden: new Date().toISOString().split('T')[0],
-      fechaEntregaEstimada: this.formPedido.fechaEntregaEstimada,
-      prioridad: this.formPedido.prioridad,
-      estado: 'En Preparación'
-    };
-
-    this.recordsPedidos.unshift(nuevo);
-    this.feedbackMessage.set(`¡Orden de Pedido ${nuevo.numeroPedido} generada exitosamente!`);
-    setTimeout(() => this.feedbackMessage.set(null), 4000);
-    this.setTab('list');
+    const client = this.recordsClientes.find(c=>c.razonSocial === this.formPedido.cliente);
+    const product = this.recordsProductos.find(p=>p.nombreComercial === this.formPedido.producto);
+    if (!client || !product) { this.feedbackMessage.set('Seleccione cliente y producto existentes.'); return; }
+    return this.save('orders', { numero_pedido:this.formPedido.numeroPedido, cliente_id:client.id, detalles:[{ nombre_producto:product.nombreComercial, presentacion:product.presentacion, cantidad:Number(this.formPedido.cantidadUnidades), precio_unitario:Number(this.precioPedido) }] });
   }
+
 
   // Acciones de Modales
   openDetailModal(item: IngresoMateriaPrimaItem) {
@@ -3721,30 +3355,6 @@ export class HomeComponent implements OnInit {
     this.editForm = {};
   }
 
-  guardarEdicion() {
-    if (!this.selectedEditItem) return;
-    const idx = this.recordsMpIngreso.findIndex(r => r.id === this.selectedEditItem!.id);
-    if (idx !== -1) {
-      const cant = Number(this.editForm.cantidadRecibida) || this.recordsMpIngreso[idx].cantidadRecibida;
-      const precio = Number(this.editForm.precioPorUnidad) || this.recordsMpIngreso[idx].precioPorUnidad;
-      this.recordsMpIngreso[idx] = {
-        ...this.recordsMpIngreso[idx],
-        ...this.editForm,
-        cantidadRecibida: cant,
-        precioPorUnidad: precio,
-        costoTotal: cant * precio
-      } as IngresoMateriaPrimaItem;
-      this.feedbackMessage.set(`¡Lote ${this.recordsMpIngreso[idx].loteInterno} actualizado correctamente!`);
-      setTimeout(() => this.feedbackMessage.set(null), 4000);
-    }
-    this.closeEditModal();
-  }
-
-  eliminarIngreso(item: IngresoMateriaPrimaItem) {
-    if (confirm(`¿Confirma eliminar el registro del lote ${item.loteInterno} (${item.producto})?`)) {
-      this.recordsMpIngreso = this.recordsMpIngreso.filter(r => r.id !== item.id);
-      this.feedbackMessage.set(`Registro del lote ${item.loteInterno} eliminado.`);
-      setTimeout(() => this.feedbackMessage.set(null), 4000);
-    }
-  }
+  guardarEdicion() { this.feedbackMessage.set('La edición de ingresos no está habilitada: preserva el historial de inventario.'); }
+  eliminarIngreso(_item: IngresoMateriaPrimaItem) { this.feedbackMessage.set('La eliminación de ingresos no está habilitada: preserva el historial de inventario.'); }
 }

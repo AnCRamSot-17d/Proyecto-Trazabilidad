@@ -4,18 +4,19 @@
   "description": "Backend API REST con arquitectura en capas para Sistema Universal de Trazabilidad Industrial y Manufactura Multiproducto (Node.js, Express, Prisma, PostgreSQL)",
   "type": "module",
   "scripts": {
-    "dev": "prisma generate && tsx watch src/server.ts",
-    "build": "prisma generate && tsc",
+    "dev": "tsx watch src/server.ts",
+    "build": "tsc",
     "start": "node dist/server.js",
-    "typecheck": "tsc --noEmit",
+    "typecheck": "tsc --noEmit && tsc -p tsconfig.tools.json",
     "db:generate": "prisma generate",
-    "db:migrate": "prisma migrate deploy",
-    "db:seed": "prisma db seed",
     "test": "tsx --test tests/*.test.ts",
-    "test:api": "tsx --test tests/api.integration.ts"
-  },
-  "prisma": {
-    "seed": "tsx prisma/seed.ts"
+    "test:api": "tsx --test tests/api.integration.ts",
+    "db:inspect": "tsx scripts/inspect-db.ts",
+    "password:hash": "tsx scripts/hash-password.ts",
+    "dev:isolated": "tsx scripts/isolated-server.ts",
+    "test:angular-proxy": "tsx scripts/verify-angular.ts",
+    "test:neon:read": "tsx scripts/verify-neon.ts",
+    "test:neon:browser": "tsx scripts/verify-angular-neon-browser.ts"
   },
   "dependencies": {
     "@prisma/client": "^6.19.3",
@@ -30,6 +31,10 @@
     "@types/express": "^5.0.0",
     "@types/jsonwebtoken": "^9.0.10",
     "@types/node": "^24.15.0",
+    "@types/pg": "^8.23.1",
+    "embedded-postgres": "^18.4.0-beta.17",
+    "pg": "^8.23.1",
+    "playwright-core": "^1.64.1",
     "prisma": "^6.19.3",
     "tsx": "^4.23.15",
     "typescript": "^5.7.3"

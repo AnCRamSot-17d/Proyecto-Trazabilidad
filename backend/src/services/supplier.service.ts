@@ -1,14 +1,3 @@
-import { supplierRepository } from '../repositories/supplier.repository.js';
-import { SupplierInput, PaginationQuery } from '../schemas/validation.js';
-
-export class SupplierService {
-  async getAll(pagination: PaginationQuery) {
-    return supplierRepository.findAll(pagination);
-  }
-
-  async create(data: SupplierInput) {
-    return supplierRepository.create(data);
-  }
-}
-
-export const supplierService = new SupplierService();
+import { domainRepository as r } from '../repositories/domain.repository.js';
+import { HttpError } from '../types/errors.js';
+export const supplierService = { getAll: r.suppliers, async create(_input: unknown) { throw new HttpError(405, 'Proveedores se registran en ingresos; no existe catálogo independiente.'); } };

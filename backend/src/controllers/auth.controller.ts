@@ -1,8 +1,18 @@
+import { z } from 'zod';
+import { HttpError } from '../types/errors.js';
 import { Request, Response, NextFunction } from 'express';
 import { loginSchema } from '../schemas/auth.schema.js';
 import { authService } from '../services/auth.service.js';
 
 export class AuthController {
+  async readOnlySession(req: Request, res: Response, next: NextFunction) {
+    try {
+      if (!['127.0.0.1','::1','::ffff:127.0.0.1'].includes(req.socket.remoteAddress ?? '')) throw new HttpError(403, 'Acceso solo desde este equipo.');
+      const {key} = z.object({key:z.string().min(64).max(256)}).strict().parse(req.body);
+      return res.json(authService.localReadOnlySession(key));
+    } catch(error) { next(error); }
+  }
+
   /**
    * POST /api/auth/login
    * Valida payload con Zod y devuelve token JWT con 30 minutos de vida
@@ -52,7 +62,7 @@ export class AuthController {
         return res.status(401).json({ error: 'Token no proporcionado.' });
       }
 
-      const user = authService.verifyToken(token);
+      const user = await authService.verifyToken(token);
       return res.status(200).json({ user });
     } catch (error) {
       next(error);
