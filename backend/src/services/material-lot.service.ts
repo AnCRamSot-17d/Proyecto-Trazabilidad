@@ -1,14 +1,3 @@
-import { materialLotRepository } from '../repositories/material-lot.repository.js';
-import { MaterialLotInput, PaginationQuery } from '../schemas/validation.js';
-
-export class MaterialLotService {
-  async getAll(pagination: PaginationQuery) {
-    return materialLotRepository.findAll(pagination);
-  }
-
-  async create(data: MaterialLotInput) {
-    return materialLotRepository.create(data);
-  }
-}
-
-export const materialLotService = new MaterialLotService();
+import { domainRepository as r } from '../repositories/domain.repository.js';
+import { domainService as s } from './domain.service.js';
+export const materialLotService = { getAll: r.receipts, create: s.createReceipt };

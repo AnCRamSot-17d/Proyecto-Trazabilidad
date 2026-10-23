@@ -26,7 +26,7 @@ export class AuthService {
   private ngZone = inject(NgZone);
 
   // URL base de la API REST del backend
-  private readonly baseUrl = 'http://localhost:3000/api';
+  private readonly baseUrl = '/api';
 
   // Constantes de sesión (30 minutos)
   private readonly INACTIVITY_LIMIT_SECONDS = 30 * 60; // 1800s = 30 minutos
@@ -87,6 +87,12 @@ export class AuthService {
   /**
    * Guarda el token y usuario en localStorage y actualiza Signals
    */
+  loginReadOnly(key: string): Observable<boolean> {
+    return this.http.post<AuthResponse>(this.baseUrl + '/auth/read-only-session', {key}).pipe(
+      tap(res => { this.saveSession(res.token,res.user); this.initInactivityTracker(); }),
+      map(() => true), catchError(error => { throw new Error(error.error?.error || 'No se pudo abrir la consulta local.'); })
+    );
+  }
   private saveSession(jwtToken: string, user: User) {
     localStorage.setItem(this.TOKEN_KEY, jwtToken);
     localStorage.setItem(this.USER_KEY, JSON.stringify(user));

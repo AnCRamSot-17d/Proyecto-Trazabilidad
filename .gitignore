@@ -15,3 +15,9 @@ frontend/dist/
 *.log
 *.tsbuildinfo
 .DS_Store
+
+# Local package download caches
+.npm-cache/
+
+# Isolated PostgreSQL test clusters
+.test-data/

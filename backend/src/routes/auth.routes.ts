@@ -2,6 +2,7 @@ import { Router } from 'express';
 import { authController } from '../controllers/auth.controller.js';
 
 const authRoutes = Router();
+authRoutes.post('/read-only-session', (req,res,next) => authController.readOnlySession(req,res,next));
 
 // Endpoint de autenticación (genera JWT de 30 minutos)
 authRoutes.post('/login', (req, res, next) => authController.login(req, res, next));

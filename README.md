@@ -1,5 +1,7 @@
 # Proyecto-Trazabilidad — BioTrace (Rama `front-back`)
 
+> **Actualización técnica:** la API ya está conectada a Neon en solo lectura. Consultar [CONEXION_NEON.md](CONEXION_NEON.md) para resultados, acceso local, endpoints y arranque. Los comandos de migración/seed descritos más abajo pertenecen a documentación anterior: no ejecutarlos contra la base compartida.
+
 Plataforma de Trazabilidad Industrial y Manufactura especializada en **Cosméticos, Dermocosmética y Farmacéutica** (excluyendo alimentos). Permite auditar todo el ciclo de vida: homologación de proveedores de principios activos y excipientes, control de balance de masa en formulaciones, fabricación de lotes terminados, liberación de control de calidad bajo estándares GMP/BPM y trazabilidad 360° ascendente y descendente.
 
 ---

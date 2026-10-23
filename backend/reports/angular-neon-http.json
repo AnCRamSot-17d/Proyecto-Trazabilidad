@@ -1,0 +1,462 @@
+{
+  "canonical": 46,
+  "aliases": 18,
+  "origin": "http://localhost:4200",
+  "implemented": 64,
+  "checked": 64,
+  "http200": 22,
+  "expectedNotFound": 21,
+  "writeRequestsBlocked": 20,
+  "emptyDatabase": true,
+  "postgresReadOnly": true,
+  "countsBefore": {
+    "clientes": "0",
+    "consumo_materia_prima": "0",
+    "detalle_consumo_materia_prima": "0",
+    "detalle_pedido": "0",
+    "historial_ingresos": "0",
+    "ingreso_materia_prima": "0",
+    "inventario_materia_prima": "0",
+    "materia_prima": "0",
+    "orden_produccion": "0",
+    "parametro_calidad": "0",
+    "paso_fabricacion": "0",
+    "pedidos": "0",
+    "producto_materia_prima": "0",
+    "productos": "0",
+    "registro_acondicionamiento_etiquetado": "0",
+    "registro_acondicionamiento_loteo": "0",
+    "registro_control_calidad": "0",
+    "registro_dispensacion": "0",
+    "registro_envasado": "0",
+    "registro_fabricacion": "0",
+    "usuarios": "0"
+  },
+  "countsAfter": {
+    "clientes": "0",
+    "consumo_materia_prima": "0",
+    "detalle_consumo_materia_prima": "0",
+    "detalle_pedido": "0",
+    "historial_ingresos": "0",
+    "ingreso_materia_prima": "0",
+    "inventario_materia_prima": "0",
+    "materia_prima": "0",
+    "orden_produccion": "0",
+    "parametro_calidad": "0",
+    "paso_fabricacion": "0",
+    "pedidos": "0",
+    "producto_materia_prima": "0",
+    "productos": "0",
+    "registro_acondicionamiento_etiquetado": "0",
+    "registro_acondicionamiento_loteo": "0",
+    "registro_control_calidad": "0",
+    "registro_dispensacion": "0",
+    "registro_envasado": "0",
+    "registro_fabricacion": "0",
+    "usuarios": "0"
+  },
+  "results": [
+    {
+      "method": "POST",
+      "path": "/api/auth/read-only-session",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/health",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/login",
+      "status": 401,
+      "expected": 401
+    },
+    {
+      "method": "POST",
+      "path": "/api/auth/refresh",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/auth/me",
+      "status": 200,
+      "expected": 200
+    },
+    {
+      "method": "GET",
+      "path": "/api/lots/55bbb9b5-bd91-4f17-a3c5-b06a7945c798/traceability",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-lots/498354e8-7986-4c77-a346-64efdfb4673a/traceability",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/inventory/47b775d4-1a15-4fc4-b4de-cbf012371c63/traceability",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/production-orders/256b4857-808c-4abc-ac1e-2f8fdf7505cf/traceability",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/users",
+      "status": 200,
+      "expected": 200,
+      "rows": 0
+    },
+    {
+      "method": "GET",
+      "path": "/api/users/855d155b-94a4-44ad-ae40-fd085c1ff2b9",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/users",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/users/f5dbc00e-95af-47cd-b4d5-c22ced30e5e6",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/products",
+      "status": 200,
+      "expected": 200,
+      "rows": 0
+    },
+    {
+      "method": "GET",
+      "path": "/api/products/93d0a28f-b717-4710-b846-845adfb22c4a",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/products",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/products/b9d66a57-fed7-4010-80f1-b2f83fb265a9",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/materials",
+      "status": 200,
+      "expected": 200,
+      "rows": 0
+    },
+    {
+      "method": "GET",
+      "path": "/api/materials/2f999e3c-9ca4-43b3-9cd0-7bbdb301f6b3",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/materials",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/materials/74026c99-e52f-443a-b1e1-05058f992969",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/clients",
+      "status": 200,
+      "expected": 200,
+      "rows": 0
+    },
+    {
+      "method": "GET",
+      "path": "/api/clients/5152c227-6ea6-4c9a-b1cc-45b27d56b705",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/clients",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/clients/92ba6f81-5733-48de-8a37-ec112c0287ad",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/clientes",
+      "status": 200,
+      "expected": 200,
+      "rows": 0
+    },
+    {
+      "method": "GET",
+      "path": "/api/clientes/a148b568-bcfe-4896-809b-9865ab658b70",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/clientes",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "PATCH",
+      "path": "/api/clientes/7dc6db10-c79d-4c3b-90de-d3bb80abe36d",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/orders",
+      "status": 200,
+      "expected": 200,
+      "rows": 0
+    },
+    {
+      "method": "GET",
+      "path": "/api/orders/ea821d39-265e-40e6-a206-3f4afb9a95c1",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/orders",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/pedidos",
+      "status": 200,
+      "expected": 200,
+      "rows": 0
+    },
+    {
+      "method": "GET",
+      "path": "/api/pedidos/861d74ca-a93e-4dc1-8a56-8f66e7b6207e",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/pedidos",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/production-orders",
+      "status": 200,
+      "expected": 200,
+      "rows": 0
+    },
+    {
+      "method": "GET",
+      "path": "/api/production-orders/32cf0332-c9c1-4dd5-9497-2bd46e39ce91",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/production-orders",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-lots",
+      "status": 200,
+      "expected": 200,
+      "rows": 0
+    },
+    {
+      "method": "GET",
+      "path": "/api/material-lots/6c758dbb-a72b-4e2d-bced-7e4229cd8a83",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/material-lots",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/ingresos-mp",
+      "status": 200,
+      "expected": 200,
+      "rows": 0
+    },
+    {
+      "method": "GET",
+      "path": "/api/ingresos-mp/24a6be01-949e-401d-ad95-bfa11452d398",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/ingresos-mp",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/consumptions",
+      "status": 200,
+      "expected": 200,
+      "rows": 0
+    },
+    {
+      "method": "GET",
+      "path": "/api/consumptions/9616dd88-cbd2-420c-b68c-d9f428d29dbb",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/consumptions",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/consumos",
+      "status": 200,
+      "expected": 200,
+      "rows": 0
+    },
+    {
+      "method": "GET",
+      "path": "/api/consumos/94eb406e-a764-4f2a-8fa5-3a04c846eb2a",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/consumos",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/inventory",
+      "status": 200,
+      "expected": 200,
+      "rows": 0
+    },
+    {
+      "method": "GET",
+      "path": "/api/inventory/8541aa6a-6173-42c2-844c-4ad02a4871fa",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/inventario",
+      "status": 200,
+      "expected": 200,
+      "rows": 0
+    },
+    {
+      "method": "GET",
+      "path": "/api/inventario/f50775fb-b0c1-4662-b83f-28160494092f",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "method": "GET",
+      "path": "/api/quality",
+      "status": 200,
+      "expected": 200,
+      "rows": 0
+    },
+    {
+      "method": "GET",
+      "path": "/api/quality/20941ad0-be5e-4c47-809d-aeb7e3042bc9",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/quality",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/calidad",
+      "status": 200,
+      "expected": 200,
+      "rows": 0
+    },
+    {
+      "method": "GET",
+      "path": "/api/calidad/aa8b4df7-40cf-4174-b69e-e54e34e1d0fc",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/calidad",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/lots",
+      "status": 200,
+      "expected": 200,
+      "rows": 0
+    },
+    {
+      "method": "GET",
+      "path": "/api/lots/cb31c16a-c19c-422d-9b58-3ebf45c3f144",
+      "status": 404,
+      "expected": 404
+    },
+    {
+      "method": "POST",
+      "path": "/api/lots",
+      "status": 403,
+      "expected": 403
+    },
+    {
+      "method": "GET",
+      "path": "/api/suppliers",
+      "status": 200,
+      "expected": 200,
+      "rows": 0
+    }
+  ]
+}

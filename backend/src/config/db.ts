@@ -1,10 +1,10 @@
+import './env.js';
 import { PrismaClient } from '@prisma/client';
-
-const globalForPrisma = globalThis as unknown as { prisma: PrismaClient | undefined };
-
-export const db: PrismaClient & Record<string, any> = (globalForPrisma.prisma ?? new PrismaClient()) as any;
-
-if (process.env.NODE_ENV !== 'production') {
-  globalForPrisma.prisma = db;
-}
-
+import { readOnly, datasourceUrl } from './env.js';
+import { HttpError } from '../types/errors.js';
+const client = new PrismaClient({ datasourceUrl: datasourceUrl() });
+const writes = new Set(['create','createMany','createManyAndReturn','update','updateMany','updateManyAndReturn','upsert','delete','deleteMany']);
+export const db = client.$extends({ query: { $allModels: { async $allOperations({ operation, args, query }) {
+  if (readOnly && writes.has(operation)) throw new HttpError(403, 'Base protegida: servidor en modo de solo lectura.');
+  return query(args);
+} } } });

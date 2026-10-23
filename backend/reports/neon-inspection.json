@@ -1,0 +1,2617 @@
+{
+  "serverVersion": "18.6 (fd34222)",
+  "transactionReadOnly": "on",
+  "indexes": [
+    {
+      "schemaname": "public",
+      "tablename": "clientes",
+      "indexname": "clientes_nombre_empresa_key",
+      "indexdef": "CREATE UNIQUE INDEX clientes_nombre_empresa_key ON public.clientes USING btree (nombre_empresa)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "clientes",
+      "indexname": "clientes_pkey",
+      "indexdef": "CREATE UNIQUE INDEX clientes_pkey ON public.clientes USING btree (id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "consumo_materia_prima",
+      "indexname": "consumo_materia_prima_orden_id_idx",
+      "indexdef": "CREATE INDEX consumo_materia_prima_orden_id_idx ON public.consumo_materia_prima USING btree (orden_id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "consumo_materia_prima",
+      "indexname": "consumo_materia_prima_pkey",
+      "indexdef": "CREATE UNIQUE INDEX consumo_materia_prima_pkey ON public.consumo_materia_prima USING btree (id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "detalle_consumo_materia_prima",
+      "indexname": "detalle_consumo_materia_prima_consumo_id_idx",
+      "indexdef": "CREATE INDEX detalle_consumo_materia_prima_consumo_id_idx ON public.detalle_consumo_materia_prima USING btree (consumo_id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "detalle_consumo_materia_prima",
+      "indexname": "detalle_consumo_materia_prima_inventario_id_idx",
+      "indexdef": "CREATE INDEX detalle_consumo_materia_prima_inventario_id_idx ON public.detalle_consumo_materia_prima USING btree (inventario_id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "detalle_consumo_materia_prima",
+      "indexname": "detalle_consumo_materia_prima_materia_prima_id_idx",
+      "indexdef": "CREATE INDEX detalle_consumo_materia_prima_materia_prima_id_idx ON public.detalle_consumo_materia_prima USING btree (materia_prima_id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "detalle_consumo_materia_prima",
+      "indexname": "detalle_consumo_materia_prima_pkey",
+      "indexdef": "CREATE UNIQUE INDEX detalle_consumo_materia_prima_pkey ON public.detalle_consumo_materia_prima USING btree (id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "detalle_pedido",
+      "indexname": "detalle_pedido_pedido_id_idx",
+      "indexdef": "CREATE INDEX detalle_pedido_pedido_id_idx ON public.detalle_pedido USING btree (pedido_id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "detalle_pedido",
+      "indexname": "detalle_pedido_pkey",
+      "indexdef": "CREATE UNIQUE INDEX detalle_pedido_pkey ON public.detalle_pedido USING btree (id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "historial_ingresos",
+      "indexname": "historial_ingresos_pkey",
+      "indexdef": "CREATE UNIQUE INDEX historial_ingresos_pkey ON public.historial_ingresos USING btree (id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "historial_ingresos",
+      "indexname": "historial_ingresos_usuario_id_fecha_ingreso_idx",
+      "indexdef": "CREATE INDEX historial_ingresos_usuario_id_fecha_ingreso_idx ON public.historial_ingresos USING btree (usuario_id, fecha_ingreso)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "ingreso_materia_prima",
+      "indexname": "ingreso_materia_prima_inventario_id_idx",
+      "indexdef": "CREATE INDEX ingreso_materia_prima_inventario_id_idx ON public.ingreso_materia_prima USING btree (inventario_id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "ingreso_materia_prima",
+      "indexname": "ingreso_materia_prima_materia_prima_id_idx",
+      "indexdef": "CREATE INDEX ingreso_materia_prima_materia_prima_id_idx ON public.ingreso_materia_prima USING btree (materia_prima_id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "ingreso_materia_prima",
+      "indexname": "ingreso_materia_prima_pkey",
+      "indexdef": "CREATE UNIQUE INDEX ingreso_materia_prima_pkey ON public.ingreso_materia_prima USING btree (id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "inventario_materia_prima",
+      "indexname": "inventario_materia_prima_lote_interno_key",
+      "indexdef": "CREATE UNIQUE INDEX inventario_materia_prima_lote_interno_key ON public.inventario_materia_prima USING btree (lote_interno)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "inventario_materia_prima",
+      "indexname": "inventario_materia_prima_materia_prima_id_idx",
+      "indexdef": "CREATE INDEX inventario_materia_prima_materia_prima_id_idx ON public.inventario_materia_prima USING btree (materia_prima_id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "inventario_materia_prima",
+      "indexname": "inventario_materia_prima_pkey",
+      "indexdef": "CREATE UNIQUE INDEX inventario_materia_prima_pkey ON public.inventario_materia_prima USING btree (id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "materia_prima",
+      "indexname": "materia_prima_codigo_materia_prima_key",
+      "indexdef": "CREATE UNIQUE INDEX materia_prima_codigo_materia_prima_key ON public.materia_prima USING btree (codigo_materia_prima)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "materia_prima",
+      "indexname": "materia_prima_pkey",
+      "indexdef": "CREATE UNIQUE INDEX materia_prima_pkey ON public.materia_prima USING btree (id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "orden_produccion",
+      "indexname": "orden_produccion_lote_key",
+      "indexdef": "CREATE UNIQUE INDEX orden_produccion_lote_key ON public.orden_produccion USING btree (lote)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "orden_produccion",
+      "indexname": "orden_produccion_pedido_id_idx",
+      "indexdef": "CREATE INDEX orden_produccion_pedido_id_idx ON public.orden_produccion USING btree (pedido_id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "orden_produccion",
+      "indexname": "orden_produccion_pkey",
+      "indexdef": "CREATE UNIQUE INDEX orden_produccion_pkey ON public.orden_produccion USING btree (id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "orden_produccion",
+      "indexname": "orden_produccion_producto_id_idx",
+      "indexdef": "CREATE INDEX orden_produccion_producto_id_idx ON public.orden_produccion USING btree (producto_id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "parametro_calidad",
+      "indexname": "parametro_calidad_control_calidad_id_idx",
+      "indexdef": "CREATE INDEX parametro_calidad_control_calidad_id_idx ON public.parametro_calidad USING btree (control_calidad_id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "parametro_calidad",
+      "indexname": "parametro_calidad_pkey",
+      "indexdef": "CREATE UNIQUE INDEX parametro_calidad_pkey ON public.parametro_calidad USING btree (id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "paso_fabricacion",
+      "indexname": "paso_fabricacion_fabricacion_id_idx",
+      "indexdef": "CREATE INDEX paso_fabricacion_fabricacion_id_idx ON public.paso_fabricacion USING btree (fabricacion_id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "paso_fabricacion",
+      "indexname": "paso_fabricacion_pkey",
+      "indexdef": "CREATE UNIQUE INDEX paso_fabricacion_pkey ON public.paso_fabricacion USING btree (id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "pedidos",
+      "indexname": "pedidos_cliente_id_idx",
+      "indexdef": "CREATE INDEX pedidos_cliente_id_idx ON public.pedidos USING btree (cliente_id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "pedidos",
+      "indexname": "pedidos_numero_pedido_key",
+      "indexdef": "CREATE UNIQUE INDEX pedidos_numero_pedido_key ON public.pedidos USING btree (numero_pedido)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "pedidos",
+      "indexname": "pedidos_pkey",
+      "indexdef": "CREATE UNIQUE INDEX pedidos_pkey ON public.pedidos USING btree (id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "producto_materia_prima",
+      "indexname": "producto_materia_prima_pkey",
+      "indexdef": "CREATE UNIQUE INDEX producto_materia_prima_pkey ON public.producto_materia_prima USING btree (id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "producto_materia_prima",
+      "indexname": "producto_materia_prima_producto_id_materia_prima_id_key",
+      "indexdef": "CREATE UNIQUE INDEX producto_materia_prima_producto_id_materia_prima_id_key ON public.producto_materia_prima USING btree (producto_id, materia_prima_id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "productos",
+      "indexname": "productos_cliente_id_idx",
+      "indexdef": "CREATE INDEX productos_cliente_id_idx ON public.productos USING btree (cliente_id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "productos",
+      "indexname": "productos_codigo_unico_key",
+      "indexdef": "CREATE UNIQUE INDEX productos_codigo_unico_key ON public.productos USING btree (codigo_unico)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "productos",
+      "indexname": "productos_pkey",
+      "indexdef": "CREATE UNIQUE INDEX productos_pkey ON public.productos USING btree (id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "registro_acondicionamiento_etiquetado",
+      "indexname": "registro_acondicionamiento_etiquetado_orden_id_idx",
+      "indexdef": "CREATE INDEX registro_acondicionamiento_etiquetado_orden_id_idx ON public.registro_acondicionamiento_etiquetado USING btree (orden_id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "registro_acondicionamiento_etiquetado",
+      "indexname": "registro_acondicionamiento_etiquetado_pkey",
+      "indexdef": "CREATE UNIQUE INDEX registro_acondicionamiento_etiquetado_pkey ON public.registro_acondicionamiento_etiquetado USING btree (id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "registro_acondicionamiento_loteo",
+      "indexname": "registro_acondicionamiento_loteo_orden_id_idx",
+      "indexdef": "CREATE INDEX registro_acondicionamiento_loteo_orden_id_idx ON public.registro_acondicionamiento_loteo USING btree (orden_id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "registro_acondicionamiento_loteo",
+      "indexname": "registro_acondicionamiento_loteo_pkey",
+      "indexdef": "CREATE UNIQUE INDEX registro_acondicionamiento_loteo_pkey ON public.registro_acondicionamiento_loteo USING btree (id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "registro_control_calidad",
+      "indexname": "registro_control_calidad_orden_id_idx",
+      "indexdef": "CREATE INDEX registro_control_calidad_orden_id_idx ON public.registro_control_calidad USING btree (orden_id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "registro_control_calidad",
+      "indexname": "registro_control_calidad_pkey",
+      "indexdef": "CREATE UNIQUE INDEX registro_control_calidad_pkey ON public.registro_control_calidad USING btree (id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "registro_dispensacion",
+      "indexname": "registro_dispensacion_orden_id_key",
+      "indexdef": "CREATE UNIQUE INDEX registro_dispensacion_orden_id_key ON public.registro_dispensacion USING btree (orden_id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "registro_dispensacion",
+      "indexname": "registro_dispensacion_pkey",
+      "indexdef": "CREATE UNIQUE INDEX registro_dispensacion_pkey ON public.registro_dispensacion USING btree (id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "registro_envasado",
+      "indexname": "registro_envasado_orden_id_idx",
+      "indexdef": "CREATE INDEX registro_envasado_orden_id_idx ON public.registro_envasado USING btree (orden_id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "registro_envasado",
+      "indexname": "registro_envasado_pkey",
+      "indexdef": "CREATE UNIQUE INDEX registro_envasado_pkey ON public.registro_envasado USING btree (id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "registro_fabricacion",
+      "indexname": "registro_fabricacion_orden_id_idx",
+      "indexdef": "CREATE INDEX registro_fabricacion_orden_id_idx ON public.registro_fabricacion USING btree (orden_id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "registro_fabricacion",
+      "indexname": "registro_fabricacion_pkey",
+      "indexdef": "CREATE UNIQUE INDEX registro_fabricacion_pkey ON public.registro_fabricacion USING btree (id)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "usuarios",
+      "indexname": "usuarios_email_key",
+      "indexdef": "CREATE UNIQUE INDEX usuarios_email_key ON public.usuarios USING btree (email)"
+    },
+    {
+      "schemaname": "public",
+      "tablename": "usuarios",
+      "indexname": "usuarios_pkey",
+      "indexdef": "CREATE UNIQUE INDEX usuarios_pkey ON public.usuarios USING btree (id)"
+    }
+  ],
+  "counts": [
+    {
+      "schema": "public",
+      "table": "clientes",
+      "rows": "0"
+    },
+    {
+      "schema": "public",
+      "table": "consumo_materia_prima",
+      "rows": "0"
+    },
+    {
+      "schema": "public",
+      "table": "detalle_consumo_materia_prima",
+      "rows": "0"
+    },
+    {
+      "schema": "public",
+      "table": "detalle_pedido",
+      "rows": "0"
+    },
+    {
+      "schema": "public",
+      "table": "historial_ingresos",
+      "rows": "0"
+    },
+    {
+      "schema": "public",
+      "table": "ingreso_materia_prima",
+      "rows": "0"
+    },
+    {
+      "schema": "public",
+      "table": "inventario_materia_prima",
+      "rows": "0"
+    },
+    {
+      "schema": "public",
+      "table": "materia_prima",
+      "rows": "0"
+    },
+    {
+      "schema": "public",
+      "table": "orden_produccion",
+      "rows": "0"
+    },
+    {
+      "schema": "public",
+      "table": "parametro_calidad",
+      "rows": "0"
+    },
+    {
+      "schema": "public",
+      "table": "paso_fabricacion",
+      "rows": "0"
+    },
+    {
+      "schema": "public",
+      "table": "pedidos",
+      "rows": "0"
+    },
+    {
+      "schema": "public",
+      "table": "producto_materia_prima",
+      "rows": "0"
+    },
+    {
+      "schema": "public",
+      "table": "productos",
+      "rows": "0"
+    },
+    {
+      "schema": "public",
+      "table": "registro_acondicionamiento_etiquetado",
+      "rows": "0"
+    },
+    {
+      "schema": "public",
+      "table": "registro_acondicionamiento_loteo",
+      "rows": "0"
+    },
+    {
+      "schema": "public",
+      "table": "registro_control_calidad",
+      "rows": "0"
+    },
+    {
+      "schema": "public",
+      "table": "registro_dispensacion",
+      "rows": "0"
+    },
+    {
+      "schema": "public",
+      "table": "registro_envasado",
+      "rows": "0"
+    },
+    {
+      "schema": "public",
+      "table": "registro_fabricacion",
+      "rows": "0"
+    },
+    {
+      "schema": "public",
+      "table": "usuarios",
+      "rows": "0"
+    }
+  ],
+  "tables": [
+    {
+      "table_schema": "public",
+      "table_name": "clientes"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "consumo_materia_prima"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "detalle_consumo_materia_prima"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "detalle_pedido"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "historial_ingresos"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ingreso_materia_prima"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "inventario_materia_prima"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "materia_prima"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "orden_produccion"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "parametro_calidad"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "paso_fabricacion"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "pedidos"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "producto_materia_prima"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "productos"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_acondicionamiento_etiquetado"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_acondicionamiento_loteo"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_control_calidad"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_dispensacion"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_envasado"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_fabricacion"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "usuarios"
+    }
+  ],
+  "columns": [
+    {
+      "table_schema": "public",
+      "table_name": "clientes",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "clientes",
+      "column_name": "nombre_empresa",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "clientes",
+      "column_name": "persona_contacto",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "clientes",
+      "column_name": "email",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "clientes",
+      "column_name": "telefono",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "clientes",
+      "column_name": "direccion",
+      "data_type": "character varying",
+      "is_nullable": "YES"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "clientes",
+      "column_name": "creado_en",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "consumo_materia_prima",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "consumo_materia_prima",
+      "column_name": "orden_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "consumo_materia_prima",
+      "column_name": "lote_total_fabricar",
+      "data_type": "numeric",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "consumo_materia_prima",
+      "column_name": "unidad_lote",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "consumo_materia_prima",
+      "column_name": "fecha_consumo",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "consumo_materia_prima",
+      "column_name": "codigo_balanza",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "consumo_materia_prima",
+      "column_name": "total_programado",
+      "data_type": "numeric",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "consumo_materia_prima",
+      "column_name": "total_real_consumido",
+      "data_type": "numeric",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "consumo_materia_prima",
+      "column_name": "variacion_diferencia",
+      "data_type": "numeric",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "detalle_consumo_materia_prima",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "detalle_consumo_materia_prima",
+      "column_name": "consumo_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "detalle_consumo_materia_prima",
+      "column_name": "materia_prima_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "detalle_consumo_materia_prima",
+      "column_name": "inventario_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "detalle_consumo_materia_prima",
+      "column_name": "cantidad_programada",
+      "data_type": "numeric",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "detalle_consumo_materia_prima",
+      "column_name": "peso_real_consumido",
+      "data_type": "numeric",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "detalle_pedido",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "detalle_pedido",
+      "column_name": "pedido_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "detalle_pedido",
+      "column_name": "nombre_producto",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "detalle_pedido",
+      "column_name": "presentacion",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "detalle_pedido",
+      "column_name": "cantidad",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "detalle_pedido",
+      "column_name": "precio_unitario",
+      "data_type": "numeric",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "detalle_pedido",
+      "column_name": "subtotal",
+      "data_type": "numeric",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "historial_ingresos",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "historial_ingresos",
+      "column_name": "usuario_id",
+      "data_type": "uuid",
+      "is_nullable": "YES"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "historial_ingresos",
+      "column_name": "direccion_ip",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "historial_ingresos",
+      "column_name": "esta_en_linea",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "historial_ingresos",
+      "column_name": "fecha_ingreso",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ingreso_materia_prima",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ingreso_materia_prima",
+      "column_name": "materia_prima_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ingreso_materia_prima",
+      "column_name": "inventario_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ingreso_materia_prima",
+      "column_name": "lote_proveedor",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ingreso_materia_prima",
+      "column_name": "cantidad_recibida",
+      "data_type": "numeric",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ingreso_materia_prima",
+      "column_name": "proveedor",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "ingreso_materia_prima",
+      "column_name": "fecha_ingreso",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "inventario_materia_prima",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "inventario_materia_prima",
+      "column_name": "materia_prima_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "inventario_materia_prima",
+      "column_name": "lote_interno",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "inventario_materia_prima",
+      "column_name": "stock_disponible",
+      "data_type": "numeric",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "inventario_materia_prima",
+      "column_name": "fecha_actualizacion",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "materia_prima",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "materia_prima",
+      "column_name": "codigo_materia_prima",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "materia_prima",
+      "column_name": "nombre_insumo",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "materia_prima",
+      "column_name": "unidad_medida",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "orden_produccion",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "orden_produccion",
+      "column_name": "pedido_id",
+      "data_type": "uuid",
+      "is_nullable": "YES"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "orden_produccion",
+      "column_name": "producto_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "orden_produccion",
+      "column_name": "lote",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "orden_produccion",
+      "column_name": "nombre_producto",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "orden_produccion",
+      "column_name": "nombre_fantasia",
+      "data_type": "character varying",
+      "is_nullable": "YES"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "orden_produccion",
+      "column_name": "marca",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "orden_produccion",
+      "column_name": "cantidad_programada",
+      "data_type": "numeric",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "orden_produccion",
+      "column_name": "presentacion",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "orden_produccion",
+      "column_name": "notificacion_sanitaria",
+      "data_type": "character varying",
+      "is_nullable": "YES"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "orden_produccion",
+      "column_name": "estado_general",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "orden_produccion",
+      "column_name": "creado_en",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "parametro_calidad",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "parametro_calidad",
+      "column_name": "control_calidad_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "parametro_calidad",
+      "column_name": "parametro",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "parametro_calidad",
+      "column_name": "especificacion",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "parametro_calidad",
+      "column_name": "resultado",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "parametro_calidad",
+      "column_name": "cumple",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "paso_fabricacion",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "paso_fabricacion",
+      "column_name": "fabricacion_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "paso_fabricacion",
+      "column_name": "paso_numero",
+      "data_type": "integer",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "paso_fabricacion",
+      "column_name": "procedimiento",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "paso_fabricacion",
+      "column_name": "rpm",
+      "data_type": "character varying",
+      "is_nullable": "YES"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "paso_fabricacion",
+      "column_name": "temperatura",
+      "data_type": "character varying",
+      "is_nullable": "YES"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "paso_fabricacion",
+      "column_name": "tiempo",
+      "data_type": "character varying",
+      "is_nullable": "YES"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "pedidos",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "pedidos",
+      "column_name": "numero_pedido",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "pedidos",
+      "column_name": "estado",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "pedidos",
+      "column_name": "fecha_pedido",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "pedidos",
+      "column_name": "cliente_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "producto_materia_prima",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "producto_materia_prima",
+      "column_name": "producto_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "producto_materia_prima",
+      "column_name": "materia_prima_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "producto_materia_prima",
+      "column_name": "porcentaje_o_proporcion",
+      "data_type": "numeric",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "productos",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "productos",
+      "column_name": "codigo_unico",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "productos",
+      "column_name": "nombre_producto",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "productos",
+      "column_name": "presentaciones",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "productos",
+      "column_name": "fecha_creacion",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "productos",
+      "column_name": "cliente_id",
+      "data_type": "uuid",
+      "is_nullable": "YES"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_acondicionamiento_etiquetado",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_acondicionamiento_etiquetado",
+      "column_name": "orden_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_acondicionamiento_etiquetado",
+      "column_name": "fecha",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_acondicionamiento_etiquetado",
+      "column_name": "ctrl_etiqueta_correcta",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_acondicionamiento_etiquetado",
+      "column_name": "ctrl_no_se_desprende",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_acondicionamiento_etiquetado",
+      "column_name": "ctrl_codigo_barras",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_acondicionamiento_loteo",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_acondicionamiento_loteo",
+      "column_name": "orden_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_acondicionamiento_loteo",
+      "column_name": "fecha",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_acondicionamiento_loteo",
+      "column_name": "balance_cantidad_loteada",
+      "data_type": "numeric",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_acondicionamiento_loteo",
+      "column_name": "porcentaje_rendimiento",
+      "data_type": "numeric",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_acondicionamiento_loteo",
+      "column_name": "porcentaje_desperdicio",
+      "data_type": "numeric",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_acondicionamiento_loteo",
+      "column_name": "aprobado_por_calidad",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_control_calidad",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_control_calidad",
+      "column_name": "orden_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_control_calidad",
+      "column_name": "fecha",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_control_calidad",
+      "column_name": "muestra_aprobada",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_control_calidad",
+      "column_name": "analizado_por",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_control_calidad",
+      "column_name": "revisado_por",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_dispensacion",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_dispensacion",
+      "column_name": "orden_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_dispensacion",
+      "column_name": "fecha_produccion",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_dispensacion",
+      "column_name": "balanza_codigo",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_dispensacion",
+      "column_name": "despeje_puede_iniciar",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_dispensacion",
+      "column_name": "autorizado_por",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_envasado",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_envasado",
+      "column_name": "orden_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_envasado",
+      "column_name": "fecha_envasado",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_envasado",
+      "column_name": "total_unidades",
+      "data_type": "numeric",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_envasado",
+      "column_name": "densidad",
+      "data_type": "numeric",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_envasado",
+      "column_name": "balance_cantidad_envasada",
+      "data_type": "numeric",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_envasado",
+      "column_name": "firma_responsable_nombre",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_fabricacion",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_fabricacion",
+      "column_name": "orden_id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_fabricacion",
+      "column_name": "fecha",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_fabricacion",
+      "column_name": "despeje_puede_iniciar",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "registro_fabricacion",
+      "column_name": "verificado_por",
+      "data_type": "character varying",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "usuarios",
+      "column_name": "id",
+      "data_type": "uuid",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "usuarios",
+      "column_name": "email",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "usuarios",
+      "column_name": "nombre",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "usuarios",
+      "column_name": "password",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "usuarios",
+      "column_name": "rol",
+      "data_type": "text",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "usuarios",
+      "column_name": "estacion",
+      "data_type": "text",
+      "is_nullable": "YES"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "usuarios",
+      "column_name": "activo",
+      "data_type": "boolean",
+      "is_nullable": "NO"
+    },
+    {
+      "table_schema": "public",
+      "table_name": "usuarios",
+      "column_name": "fecha_creacion",
+      "data_type": "timestamp without time zone",
+      "is_nullable": "NO"
+    }
+  ],
+  "constraints": [
+    {
+      "schema": "public",
+      "table_name": "clientes",
+      "name": "clientes_creado_en_not_null",
+      "type": "n",
+      "definition": "NOT NULL creado_en"
+    },
+    {
+      "schema": "public",
+      "table_name": "clientes",
+      "name": "clientes_email_not_null",
+      "type": "n",
+      "definition": "NOT NULL email"
+    },
+    {
+      "schema": "public",
+      "table_name": "clientes",
+      "name": "clientes_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL id"
+    },
+    {
+      "schema": "public",
+      "table_name": "clientes",
+      "name": "clientes_nombre_empresa_not_null",
+      "type": "n",
+      "definition": "NOT NULL nombre_empresa"
+    },
+    {
+      "schema": "public",
+      "table_name": "clientes",
+      "name": "clientes_persona_contacto_not_null",
+      "type": "n",
+      "definition": "NOT NULL persona_contacto"
+    },
+    {
+      "schema": "public",
+      "table_name": "clientes",
+      "name": "clientes_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "clientes",
+      "name": "clientes_telefono_not_null",
+      "type": "n",
+      "definition": "NOT NULL telefono"
+    },
+    {
+      "schema": "public",
+      "table_name": "consumo_materia_prima",
+      "name": "consumo_materia_prima_fecha_consumo_not_null",
+      "type": "n",
+      "definition": "NOT NULL fecha_consumo"
+    },
+    {
+      "schema": "public",
+      "table_name": "consumo_materia_prima",
+      "name": "consumo_materia_prima_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL id"
+    },
+    {
+      "schema": "public",
+      "table_name": "consumo_materia_prima",
+      "name": "consumo_materia_prima_lote_total_fabricar_not_null",
+      "type": "n",
+      "definition": "NOT NULL lote_total_fabricar"
+    },
+    {
+      "schema": "public",
+      "table_name": "consumo_materia_prima",
+      "name": "consumo_materia_prima_orden_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (orden_id) REFERENCES orden_produccion(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "schema": "public",
+      "table_name": "consumo_materia_prima",
+      "name": "consumo_materia_prima_orden_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL orden_id"
+    },
+    {
+      "schema": "public",
+      "table_name": "consumo_materia_prima",
+      "name": "consumo_materia_prima_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "consumo_materia_prima",
+      "name": "consumo_materia_prima_total_programado_not_null",
+      "type": "n",
+      "definition": "NOT NULL total_programado"
+    },
+    {
+      "schema": "public",
+      "table_name": "consumo_materia_prima",
+      "name": "consumo_materia_prima_total_real_consumido_not_null",
+      "type": "n",
+      "definition": "NOT NULL total_real_consumido"
+    },
+    {
+      "schema": "public",
+      "table_name": "consumo_materia_prima",
+      "name": "consumo_materia_prima_unidad_lote_not_null",
+      "type": "n",
+      "definition": "NOT NULL unidad_lote"
+    },
+    {
+      "schema": "public",
+      "table_name": "consumo_materia_prima",
+      "name": "consumo_materia_prima_variacion_diferencia_not_null",
+      "type": "n",
+      "definition": "NOT NULL variacion_diferencia"
+    },
+    {
+      "schema": "public",
+      "table_name": "detalle_consumo_materia_prima",
+      "name": "detalle_consumo_materia_prima_cantidad_programada_not_null",
+      "type": "n",
+      "definition": "NOT NULL cantidad_programada"
+    },
+    {
+      "schema": "public",
+      "table_name": "detalle_consumo_materia_prima",
+      "name": "detalle_consumo_materia_prima_consumo_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (consumo_id) REFERENCES consumo_materia_prima(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "schema": "public",
+      "table_name": "detalle_consumo_materia_prima",
+      "name": "detalle_consumo_materia_prima_consumo_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL consumo_id"
+    },
+    {
+      "schema": "public",
+      "table_name": "detalle_consumo_materia_prima",
+      "name": "detalle_consumo_materia_prima_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL id"
+    },
+    {
+      "schema": "public",
+      "table_name": "detalle_consumo_materia_prima",
+      "name": "detalle_consumo_materia_prima_inventario_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (inventario_id) REFERENCES inventario_materia_prima(id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "schema": "public",
+      "table_name": "detalle_consumo_materia_prima",
+      "name": "detalle_consumo_materia_prima_inventario_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL inventario_id"
+    },
+    {
+      "schema": "public",
+      "table_name": "detalle_consumo_materia_prima",
+      "name": "detalle_consumo_materia_prima_materia_prima_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (materia_prima_id) REFERENCES materia_prima(id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "schema": "public",
+      "table_name": "detalle_consumo_materia_prima",
+      "name": "detalle_consumo_materia_prima_materia_prima_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL materia_prima_id"
+    },
+    {
+      "schema": "public",
+      "table_name": "detalle_consumo_materia_prima",
+      "name": "detalle_consumo_materia_prima_peso_real_consumido_not_null",
+      "type": "n",
+      "definition": "NOT NULL peso_real_consumido"
+    },
+    {
+      "schema": "public",
+      "table_name": "detalle_consumo_materia_prima",
+      "name": "detalle_consumo_materia_prima_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "detalle_pedido",
+      "name": "detalle_pedido_cantidad_not_null",
+      "type": "n",
+      "definition": "NOT NULL cantidad"
+    },
+    {
+      "schema": "public",
+      "table_name": "detalle_pedido",
+      "name": "detalle_pedido_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL id"
+    },
+    {
+      "schema": "public",
+      "table_name": "detalle_pedido",
+      "name": "detalle_pedido_nombre_producto_not_null",
+      "type": "n",
+      "definition": "NOT NULL nombre_producto"
+    },
+    {
+      "schema": "public",
+      "table_name": "detalle_pedido",
+      "name": "detalle_pedido_pedido_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "schema": "public",
+      "table_name": "detalle_pedido",
+      "name": "detalle_pedido_pedido_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL pedido_id"
+    },
+    {
+      "schema": "public",
+      "table_name": "detalle_pedido",
+      "name": "detalle_pedido_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "detalle_pedido",
+      "name": "detalle_pedido_precio_unitario_not_null",
+      "type": "n",
+      "definition": "NOT NULL precio_unitario"
+    },
+    {
+      "schema": "public",
+      "table_name": "detalle_pedido",
+      "name": "detalle_pedido_presentacion_not_null",
+      "type": "n",
+      "definition": "NOT NULL presentacion"
+    },
+    {
+      "schema": "public",
+      "table_name": "detalle_pedido",
+      "name": "detalle_pedido_subtotal_not_null",
+      "type": "n",
+      "definition": "NOT NULL subtotal"
+    },
+    {
+      "schema": "public",
+      "table_name": "historial_ingresos",
+      "name": "historial_ingresos_direccion_ip_not_null",
+      "type": "n",
+      "definition": "NOT NULL direccion_ip"
+    },
+    {
+      "schema": "public",
+      "table_name": "historial_ingresos",
+      "name": "historial_ingresos_esta_en_linea_not_null",
+      "type": "n",
+      "definition": "NOT NULL esta_en_linea"
+    },
+    {
+      "schema": "public",
+      "table_name": "historial_ingresos",
+      "name": "historial_ingresos_fecha_ingreso_not_null",
+      "type": "n",
+      "definition": "NOT NULL fecha_ingreso"
+    },
+    {
+      "schema": "public",
+      "table_name": "historial_ingresos",
+      "name": "historial_ingresos_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL id"
+    },
+    {
+      "schema": "public",
+      "table_name": "historial_ingresos",
+      "name": "historial_ingresos_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "historial_ingresos",
+      "name": "historial_ingresos_usuario_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (usuario_id) REFERENCES usuarios(id) ON UPDATE CASCADE ON DELETE SET NULL"
+    },
+    {
+      "schema": "public",
+      "table_name": "ingreso_materia_prima",
+      "name": "ingreso_materia_prima_cantidad_recibida_not_null",
+      "type": "n",
+      "definition": "NOT NULL cantidad_recibida"
+    },
+    {
+      "schema": "public",
+      "table_name": "ingreso_materia_prima",
+      "name": "ingreso_materia_prima_fecha_ingreso_not_null",
+      "type": "n",
+      "definition": "NOT NULL fecha_ingreso"
+    },
+    {
+      "schema": "public",
+      "table_name": "ingreso_materia_prima",
+      "name": "ingreso_materia_prima_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL id"
+    },
+    {
+      "schema": "public",
+      "table_name": "ingreso_materia_prima",
+      "name": "ingreso_materia_prima_inventario_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (inventario_id) REFERENCES inventario_materia_prima(id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "schema": "public",
+      "table_name": "ingreso_materia_prima",
+      "name": "ingreso_materia_prima_inventario_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL inventario_id"
+    },
+    {
+      "schema": "public",
+      "table_name": "ingreso_materia_prima",
+      "name": "ingreso_materia_prima_lote_proveedor_not_null",
+      "type": "n",
+      "definition": "NOT NULL lote_proveedor"
+    },
+    {
+      "schema": "public",
+      "table_name": "ingreso_materia_prima",
+      "name": "ingreso_materia_prima_materia_prima_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (materia_prima_id) REFERENCES materia_prima(id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "schema": "public",
+      "table_name": "ingreso_materia_prima",
+      "name": "ingreso_materia_prima_materia_prima_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL materia_prima_id"
+    },
+    {
+      "schema": "public",
+      "table_name": "ingreso_materia_prima",
+      "name": "ingreso_materia_prima_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "ingreso_materia_prima",
+      "name": "ingreso_materia_prima_proveedor_not_null",
+      "type": "n",
+      "definition": "NOT NULL proveedor"
+    },
+    {
+      "schema": "public",
+      "table_name": "inventario_materia_prima",
+      "name": "inventario_materia_prima_fecha_actualizacion_not_null",
+      "type": "n",
+      "definition": "NOT NULL fecha_actualizacion"
+    },
+    {
+      "schema": "public",
+      "table_name": "inventario_materia_prima",
+      "name": "inventario_materia_prima_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL id"
+    },
+    {
+      "schema": "public",
+      "table_name": "inventario_materia_prima",
+      "name": "inventario_materia_prima_lote_interno_not_null",
+      "type": "n",
+      "definition": "NOT NULL lote_interno"
+    },
+    {
+      "schema": "public",
+      "table_name": "inventario_materia_prima",
+      "name": "inventario_materia_prima_materia_prima_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (materia_prima_id) REFERENCES materia_prima(id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "schema": "public",
+      "table_name": "inventario_materia_prima",
+      "name": "inventario_materia_prima_materia_prima_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL materia_prima_id"
+    },
+    {
+      "schema": "public",
+      "table_name": "inventario_materia_prima",
+      "name": "inventario_materia_prima_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "inventario_materia_prima",
+      "name": "inventario_materia_prima_stock_disponible_not_null",
+      "type": "n",
+      "definition": "NOT NULL stock_disponible"
+    },
+    {
+      "schema": "public",
+      "table_name": "materia_prima",
+      "name": "materia_prima_codigo_materia_prima_not_null",
+      "type": "n",
+      "definition": "NOT NULL codigo_materia_prima"
+    },
+    {
+      "schema": "public",
+      "table_name": "materia_prima",
+      "name": "materia_prima_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL id"
+    },
+    {
+      "schema": "public",
+      "table_name": "materia_prima",
+      "name": "materia_prima_nombre_insumo_not_null",
+      "type": "n",
+      "definition": "NOT NULL nombre_insumo"
+    },
+    {
+      "schema": "public",
+      "table_name": "materia_prima",
+      "name": "materia_prima_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "materia_prima",
+      "name": "materia_prima_unidad_medida_not_null",
+      "type": "n",
+      "definition": "NOT NULL unidad_medida"
+    },
+    {
+      "schema": "public",
+      "table_name": "orden_produccion",
+      "name": "orden_produccion_cantidad_programada_not_null",
+      "type": "n",
+      "definition": "NOT NULL cantidad_programada"
+    },
+    {
+      "schema": "public",
+      "table_name": "orden_produccion",
+      "name": "orden_produccion_creado_en_not_null",
+      "type": "n",
+      "definition": "NOT NULL creado_en"
+    },
+    {
+      "schema": "public",
+      "table_name": "orden_produccion",
+      "name": "orden_produccion_estado_general_not_null",
+      "type": "n",
+      "definition": "NOT NULL estado_general"
+    },
+    {
+      "schema": "public",
+      "table_name": "orden_produccion",
+      "name": "orden_produccion_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL id"
+    },
+    {
+      "schema": "public",
+      "table_name": "orden_produccion",
+      "name": "orden_produccion_lote_not_null",
+      "type": "n",
+      "definition": "NOT NULL lote"
+    },
+    {
+      "schema": "public",
+      "table_name": "orden_produccion",
+      "name": "orden_produccion_marca_not_null",
+      "type": "n",
+      "definition": "NOT NULL marca"
+    },
+    {
+      "schema": "public",
+      "table_name": "orden_produccion",
+      "name": "orden_produccion_nombre_producto_not_null",
+      "type": "n",
+      "definition": "NOT NULL nombre_producto"
+    },
+    {
+      "schema": "public",
+      "table_name": "orden_produccion",
+      "name": "orden_produccion_pedido_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (pedido_id) REFERENCES pedidos(id) ON UPDATE CASCADE ON DELETE SET NULL"
+    },
+    {
+      "schema": "public",
+      "table_name": "orden_produccion",
+      "name": "orden_produccion_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "orden_produccion",
+      "name": "orden_produccion_presentacion_not_null",
+      "type": "n",
+      "definition": "NOT NULL presentacion"
+    },
+    {
+      "schema": "public",
+      "table_name": "orden_produccion",
+      "name": "orden_produccion_producto_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (producto_id) REFERENCES productos(id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "schema": "public",
+      "table_name": "orden_produccion",
+      "name": "orden_produccion_producto_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL producto_id"
+    },
+    {
+      "schema": "public",
+      "table_name": "parametro_calidad",
+      "name": "parametro_calidad_control_calidad_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (control_calidad_id) REFERENCES registro_control_calidad(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "schema": "public",
+      "table_name": "parametro_calidad",
+      "name": "parametro_calidad_control_calidad_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL control_calidad_id"
+    },
+    {
+      "schema": "public",
+      "table_name": "parametro_calidad",
+      "name": "parametro_calidad_cumple_not_null",
+      "type": "n",
+      "definition": "NOT NULL cumple"
+    },
+    {
+      "schema": "public",
+      "table_name": "parametro_calidad",
+      "name": "parametro_calidad_especificacion_not_null",
+      "type": "n",
+      "definition": "NOT NULL especificacion"
+    },
+    {
+      "schema": "public",
+      "table_name": "parametro_calidad",
+      "name": "parametro_calidad_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL id"
+    },
+    {
+      "schema": "public",
+      "table_name": "parametro_calidad",
+      "name": "parametro_calidad_parametro_not_null",
+      "type": "n",
+      "definition": "NOT NULL parametro"
+    },
+    {
+      "schema": "public",
+      "table_name": "parametro_calidad",
+      "name": "parametro_calidad_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "parametro_calidad",
+      "name": "parametro_calidad_resultado_not_null",
+      "type": "n",
+      "definition": "NOT NULL resultado"
+    },
+    {
+      "schema": "public",
+      "table_name": "paso_fabricacion",
+      "name": "paso_fabricacion_fabricacion_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (fabricacion_id) REFERENCES registro_fabricacion(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "schema": "public",
+      "table_name": "paso_fabricacion",
+      "name": "paso_fabricacion_fabricacion_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL fabricacion_id"
+    },
+    {
+      "schema": "public",
+      "table_name": "paso_fabricacion",
+      "name": "paso_fabricacion_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL id"
+    },
+    {
+      "schema": "public",
+      "table_name": "paso_fabricacion",
+      "name": "paso_fabricacion_paso_numero_not_null",
+      "type": "n",
+      "definition": "NOT NULL paso_numero"
+    },
+    {
+      "schema": "public",
+      "table_name": "paso_fabricacion",
+      "name": "paso_fabricacion_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "paso_fabricacion",
+      "name": "paso_fabricacion_procedimiento_not_null",
+      "type": "n",
+      "definition": "NOT NULL procedimiento"
+    },
+    {
+      "schema": "public",
+      "table_name": "pedidos",
+      "name": "pedidos_cliente_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "schema": "public",
+      "table_name": "pedidos",
+      "name": "pedidos_cliente_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL cliente_id"
+    },
+    {
+      "schema": "public",
+      "table_name": "pedidos",
+      "name": "pedidos_estado_not_null",
+      "type": "n",
+      "definition": "NOT NULL estado"
+    },
+    {
+      "schema": "public",
+      "table_name": "pedidos",
+      "name": "pedidos_fecha_pedido_not_null",
+      "type": "n",
+      "definition": "NOT NULL fecha_pedido"
+    },
+    {
+      "schema": "public",
+      "table_name": "pedidos",
+      "name": "pedidos_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL id"
+    },
+    {
+      "schema": "public",
+      "table_name": "pedidos",
+      "name": "pedidos_numero_pedido_not_null",
+      "type": "n",
+      "definition": "NOT NULL numero_pedido"
+    },
+    {
+      "schema": "public",
+      "table_name": "pedidos",
+      "name": "pedidos_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "producto_materia_prima",
+      "name": "producto_materia_prima_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL id"
+    },
+    {
+      "schema": "public",
+      "table_name": "producto_materia_prima",
+      "name": "producto_materia_prima_materia_prima_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (materia_prima_id) REFERENCES materia_prima(id) ON UPDATE CASCADE ON DELETE RESTRICT"
+    },
+    {
+      "schema": "public",
+      "table_name": "producto_materia_prima",
+      "name": "producto_materia_prima_materia_prima_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL materia_prima_id"
+    },
+    {
+      "schema": "public",
+      "table_name": "producto_materia_prima",
+      "name": "producto_materia_prima_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "producto_materia_prima",
+      "name": "producto_materia_prima_porcentaje_o_proporcion_not_null",
+      "type": "n",
+      "definition": "NOT NULL porcentaje_o_proporcion"
+    },
+    {
+      "schema": "public",
+      "table_name": "producto_materia_prima",
+      "name": "producto_materia_prima_producto_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (producto_id) REFERENCES productos(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "schema": "public",
+      "table_name": "producto_materia_prima",
+      "name": "producto_materia_prima_producto_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL producto_id"
+    },
+    {
+      "schema": "public",
+      "table_name": "productos",
+      "name": "productos_cliente_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (cliente_id) REFERENCES clientes(id) ON UPDATE CASCADE ON DELETE SET NULL"
+    },
+    {
+      "schema": "public",
+      "table_name": "productos",
+      "name": "productos_codigo_unico_not_null",
+      "type": "n",
+      "definition": "NOT NULL codigo_unico"
+    },
+    {
+      "schema": "public",
+      "table_name": "productos",
+      "name": "productos_fecha_creacion_not_null",
+      "type": "n",
+      "definition": "NOT NULL fecha_creacion"
+    },
+    {
+      "schema": "public",
+      "table_name": "productos",
+      "name": "productos_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL id"
+    },
+    {
+      "schema": "public",
+      "table_name": "productos",
+      "name": "productos_nombre_producto_not_null",
+      "type": "n",
+      "definition": "NOT NULL nombre_producto"
+    },
+    {
+      "schema": "public",
+      "table_name": "productos",
+      "name": "productos_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_acondicionamiento_etiquetado",
+      "name": "registro_acondicionamiento_etiq_ctrl_etiqueta_correcta_not_null",
+      "type": "n",
+      "definition": "NOT NULL ctrl_etiqueta_correcta"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_acondicionamiento_etiquetado",
+      "name": "registro_acondicionamiento_etique_ctrl_no_se_desprende_not_null",
+      "type": "n",
+      "definition": "NOT NULL ctrl_no_se_desprende"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_acondicionamiento_etiquetado",
+      "name": "registro_acondicionamiento_etiqueta_ctrl_codigo_barras_not_null",
+      "type": "n",
+      "definition": "NOT NULL ctrl_codigo_barras"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_acondicionamiento_etiquetado",
+      "name": "registro_acondicionamiento_etiquetado_fecha_not_null",
+      "type": "n",
+      "definition": "NOT NULL fecha"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_acondicionamiento_etiquetado",
+      "name": "registro_acondicionamiento_etiquetado_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL id"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_acondicionamiento_etiquetado",
+      "name": "registro_acondicionamiento_etiquetado_orden_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (orden_id) REFERENCES orden_produccion(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_acondicionamiento_etiquetado",
+      "name": "registro_acondicionamiento_etiquetado_orden_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL orden_id"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_acondicionamiento_etiquetado",
+      "name": "registro_acondicionamiento_etiquetado_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_acondicionamiento_loteo",
+      "name": "registro_acondicionamiento_lo_balance_cantidad_loteada_not_null",
+      "type": "n",
+      "definition": "NOT NULL balance_cantidad_loteada"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_acondicionamiento_loteo",
+      "name": "registro_acondicionamiento_lote_porcentaje_desperdicio_not_null",
+      "type": "n",
+      "definition": "NOT NULL porcentaje_desperdicio"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_acondicionamiento_loteo",
+      "name": "registro_acondicionamiento_lote_porcentaje_rendimiento_not_null",
+      "type": "n",
+      "definition": "NOT NULL porcentaje_rendimiento"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_acondicionamiento_loteo",
+      "name": "registro_acondicionamiento_loteo_aprobado_por_calidad_not_null",
+      "type": "n",
+      "definition": "NOT NULL aprobado_por_calidad"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_acondicionamiento_loteo",
+      "name": "registro_acondicionamiento_loteo_fecha_not_null",
+      "type": "n",
+      "definition": "NOT NULL fecha"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_acondicionamiento_loteo",
+      "name": "registro_acondicionamiento_loteo_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL id"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_acondicionamiento_loteo",
+      "name": "registro_acondicionamiento_loteo_orden_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (orden_id) REFERENCES orden_produccion(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_acondicionamiento_loteo",
+      "name": "registro_acondicionamiento_loteo_orden_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL orden_id"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_acondicionamiento_loteo",
+      "name": "registro_acondicionamiento_loteo_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_control_calidad",
+      "name": "registro_control_calidad_analizado_por_not_null",
+      "type": "n",
+      "definition": "NOT NULL analizado_por"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_control_calidad",
+      "name": "registro_control_calidad_fecha_not_null",
+      "type": "n",
+      "definition": "NOT NULL fecha"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_control_calidad",
+      "name": "registro_control_calidad_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL id"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_control_calidad",
+      "name": "registro_control_calidad_muestra_aprobada_not_null",
+      "type": "n",
+      "definition": "NOT NULL muestra_aprobada"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_control_calidad",
+      "name": "registro_control_calidad_orden_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (orden_id) REFERENCES orden_produccion(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_control_calidad",
+      "name": "registro_control_calidad_orden_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL orden_id"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_control_calidad",
+      "name": "registro_control_calidad_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_control_calidad",
+      "name": "registro_control_calidad_revisado_por_not_null",
+      "type": "n",
+      "definition": "NOT NULL revisado_por"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_dispensacion",
+      "name": "registro_dispensacion_autorizado_por_not_null",
+      "type": "n",
+      "definition": "NOT NULL autorizado_por"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_dispensacion",
+      "name": "registro_dispensacion_balanza_codigo_not_null",
+      "type": "n",
+      "definition": "NOT NULL balanza_codigo"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_dispensacion",
+      "name": "registro_dispensacion_despeje_puede_iniciar_not_null",
+      "type": "n",
+      "definition": "NOT NULL despeje_puede_iniciar"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_dispensacion",
+      "name": "registro_dispensacion_fecha_produccion_not_null",
+      "type": "n",
+      "definition": "NOT NULL fecha_produccion"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_dispensacion",
+      "name": "registro_dispensacion_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL id"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_dispensacion",
+      "name": "registro_dispensacion_orden_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (orden_id) REFERENCES orden_produccion(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_dispensacion",
+      "name": "registro_dispensacion_orden_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL orden_id"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_dispensacion",
+      "name": "registro_dispensacion_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_envasado",
+      "name": "registro_envasado_balance_cantidad_envasada_not_null",
+      "type": "n",
+      "definition": "NOT NULL balance_cantidad_envasada"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_envasado",
+      "name": "registro_envasado_densidad_not_null",
+      "type": "n",
+      "definition": "NOT NULL densidad"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_envasado",
+      "name": "registro_envasado_fecha_envasado_not_null",
+      "type": "n",
+      "definition": "NOT NULL fecha_envasado"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_envasado",
+      "name": "registro_envasado_firma_responsable_nombre_not_null",
+      "type": "n",
+      "definition": "NOT NULL firma_responsable_nombre"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_envasado",
+      "name": "registro_envasado_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL id"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_envasado",
+      "name": "registro_envasado_orden_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (orden_id) REFERENCES orden_produccion(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_envasado",
+      "name": "registro_envasado_orden_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL orden_id"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_envasado",
+      "name": "registro_envasado_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_envasado",
+      "name": "registro_envasado_total_unidades_not_null",
+      "type": "n",
+      "definition": "NOT NULL total_unidades"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_fabricacion",
+      "name": "registro_fabricacion_despeje_puede_iniciar_not_null",
+      "type": "n",
+      "definition": "NOT NULL despeje_puede_iniciar"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_fabricacion",
+      "name": "registro_fabricacion_fecha_not_null",
+      "type": "n",
+      "definition": "NOT NULL fecha"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_fabricacion",
+      "name": "registro_fabricacion_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL id"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_fabricacion",
+      "name": "registro_fabricacion_orden_id_fkey",
+      "type": "f",
+      "definition": "FOREIGN KEY (orden_id) REFERENCES orden_produccion(id) ON UPDATE CASCADE ON DELETE CASCADE"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_fabricacion",
+      "name": "registro_fabricacion_orden_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL orden_id"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_fabricacion",
+      "name": "registro_fabricacion_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "registro_fabricacion",
+      "name": "registro_fabricacion_verificado_por_not_null",
+      "type": "n",
+      "definition": "NOT NULL verificado_por"
+    },
+    {
+      "schema": "public",
+      "table_name": "usuarios",
+      "name": "usuarios_activo_not_null",
+      "type": "n",
+      "definition": "NOT NULL activo"
+    },
+    {
+      "schema": "public",
+      "table_name": "usuarios",
+      "name": "usuarios_email_not_null",
+      "type": "n",
+      "definition": "NOT NULL email"
+    },
+    {
+      "schema": "public",
+      "table_name": "usuarios",
+      "name": "usuarios_fecha_creacion_not_null",
+      "type": "n",
+      "definition": "NOT NULL fecha_creacion"
+    },
+    {
+      "schema": "public",
+      "table_name": "usuarios",
+      "name": "usuarios_id_not_null",
+      "type": "n",
+      "definition": "NOT NULL id"
+    },
+    {
+      "schema": "public",
+      "table_name": "usuarios",
+      "name": "usuarios_nombre_not_null",
+      "type": "n",
+      "definition": "NOT NULL nombre"
+    },
+    {
+      "schema": "public",
+      "table_name": "usuarios",
+      "name": "usuarios_password_not_null",
+      "type": "n",
+      "definition": "NOT NULL password"
+    },
+    {
+      "schema": "public",
+      "table_name": "usuarios",
+      "name": "usuarios_pkey",
+      "type": "p",
+      "definition": "PRIMARY KEY (id)"
+    },
+    {
+      "schema": "public",
+      "table_name": "usuarios",
+      "name": "usuarios_rol_not_null",
+      "type": "n",
+      "definition": "NOT NULL rol"
+    }
+  ]
+}
