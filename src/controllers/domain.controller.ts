@@ -7,4 +7,5 @@ export const domainController = {
   get: (fn: (key: string) => Promise<unknown>) => wrap(async (req,res) => res.json(await required(fn(id.parse(req.params.id))))),
   create: (fn: (data: unknown) => Promise<unknown>) => wrap(async (req,res) => res.status(201).json(await fn(req.body))),
   update: (fn: (key: string, data: unknown) => Promise<unknown>) => wrap(async (req,res) => res.json(await fn(id.parse(req.params.id),req.body))),
+  remove: (fn: (key: string) => Promise<unknown>) => wrap(async (req,res) => res.json(await fn(id.parse(req.params.id)))),
 };

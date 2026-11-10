@@ -10,6 +10,14 @@ export const domainService = {
   async updateProduct(id: string, input: unknown) { return r.updateProduct(id, updates.products.parse(input)); },
   async updateMaterial(id: string, input: unknown) { return r.updateMaterial(id, updates.materials.parse(input)); },
   async updateClient(id: string, input: unknown) { return r.updateClient(id, updates.clients.parse(input)); },
+  async updateOrder(id: string, input: unknown) { return r.updateOrder(id, input as any); },
+  async deleteProduct(id: string) { return r.deleteProduct(id); },
+  async deleteClient(id: string) { return r.deleteClient(id); },
+  async deleteOrder(id: string) { return r.deleteOrder(id); },
+  async deleteReceipt(id: string) { return r.deleteReceipt(id); },
+  async deleteQuality(id: string) { return r.deleteQuality(id); },
+  async deleteConsumption(id: string) { return r.deleteConsumption(id); },
+  async deleteProductionOrder(id: string) { return r.deleteProductionOrder(id); },
   async updateUser(id: string, input: unknown) {
     const data = updates.users.parse(input);
     return db.$transaction(async tx => {

@@ -22,17 +22,19 @@ router.use((req: AuthenticatedRequest, _res, next) => {
   }
   next();
 });
-function resource(paths: string[], list: (p: PaginationQuery) => Promise<unknown>, one?: (id: string) => Promise<unknown>, create?: (data: unknown) => Promise<unknown>, update?: (key: string, data: unknown) => Promise<unknown>) {
+function resource(paths: string[], list: (p: PaginationQuery) => Promise<unknown>, one?: (id: string) => Promise<unknown>, create?: (data: unknown) => Promise<unknown>, update?: (key: string, data: unknown) => Promise<unknown>, remove?: (key: string) => Promise<unknown>) {
   const child = Router();
   child.get('/', c.list(list));
   if (one) child.get('/:id', c.get(one));
   if (create) child.post('/', c.create(create));
   if (update) child.patch('/:id', c.update(update));
+  if (remove) child.delete('/:id', c.remove(remove));
   for (const path of paths) {
     apiOperations.push({method:'GET',path:'/api'+path});
     if(one) apiOperations.push({method:'GET',path:'/api'+path+'/:id'});
     if(create) apiOperations.push({method:'POST',path:'/api'+path});
     if(update) apiOperations.push({method:'PATCH',path:'/api'+path+'/:id'});
+    if(remove) apiOperations.push({method:'DELETE',path:'/api'+path+'/:id'});
     router.use(path,child);
   }
 }
@@ -43,15 +45,15 @@ router.get('/inventory/:id/traceability', wrap(async (req,res) => res.json(await
 router.get('/production-orders/:id/traceability', wrap(async (req,res) => res.json(await required(s.productionOrder(id.parse(req.params.id))))));
 router.use('/users', (req: AuthenticatedRequest, _res, next) => (req.user?.role === 'ADMINISTRADOR' || (readOnly && req.user?.role === 'LECTOR_LOCAL' && ['GET','HEAD'].includes(req.method))) ? next() : next(new HttpError(403, 'Solo administradores.')));
 resource(['/users'], s.users, s.user, s.createUser, s.updateUser);
-resource(['/products'], s.products, s.product, s.createProduct, s.updateProduct);
+resource(['/products'], s.products, s.product, s.createProduct, s.updateProduct, s.deleteProduct);
 resource(['/materials'], s.materials, s.material, s.createMaterial, s.updateMaterial);
-resource(['/clients','/clientes'], s.clients, s.client, s.createClient, s.updateClient);
-resource(['/orders','/pedidos'], s.orders, s.order, s.createOrder);
-resource(['/production-orders'], s.productionOrders, s.productionOrder, s.createProductionOrder);
-resource(['/material-lots','/ingresos-mp'], s.receipts, s.receipt, s.createReceipt);
-resource(['/consumptions','/consumos'], s.consumptions, s.consumption, s.createConsumption);
+resource(['/clients','/clientes'], s.clients, s.client, s.createClient, s.updateClient, s.deleteClient);
+resource(['/orders','/pedidos'], s.orders, s.order, s.createOrder, s.updateOrder, s.deleteOrder);
+resource(['/production-orders'], s.productionOrders, s.productionOrder, s.createProductionOrder, undefined, s.deleteProductionOrder);
+resource(['/material-lots','/ingresos-mp'], s.receipts, s.receipt, s.createReceipt, undefined, s.deleteReceipt);
+resource(['/consumptions','/consumos'], s.consumptions, s.consumption, s.createConsumption, undefined, s.deleteConsumption);
 resource(['/inventory','/inventario'], s.inventory, s.inventoryLot);
-resource(['/quality','/calidad'], s.quality, s.qualityRecord, s.createQuality);
+resource(['/quality','/calidad'], s.quality, s.qualityRecord, s.createQuality, undefined, s.deleteQuality);
 resource(['/lots'], s.lots, s.lot, s.createLot);
 resource(['/suppliers'], s.suppliers);
 router.all('/shipments', (_req,_res,next) => next(new HttpError(501, 'El esquema actual no contiene despachos.')));
