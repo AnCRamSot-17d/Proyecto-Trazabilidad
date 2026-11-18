@@ -18,7 +18,11 @@ router.use(authenticateToken);
 router.use((req: AuthenticatedRequest, _res, next) => {
   if (!['GET','HEAD','OPTIONS'].includes(req.method)) {
     if (readOnly) return next(new HttpError(403, 'Base protegida: servidor en modo de solo lectura.'));
-    if (req.user?.role !== 'ADMINISTRADOR' && !(req.user?.role === 'CALIDAD' && ['/quality','/calidad'].includes(req.path))) return next(new HttpError(403, 'Permisos insuficientes.'));
+    const role = req.user?.role;
+    if (role === 'ADMINISTRADOR') return next();
+    if (role === 'CALIDAD' && ['/quality','/calidad'].some(p => req.path.startsWith(p))) return next();
+    if (role === 'OPERADOR' && ['/material-lots','/ingresos-mp','/consumptions','/consumos','/production-orders','/lots'].some(p => req.path.startsWith(p))) return next();
+    return next(new HttpError(403, 'Permisos insuficientes.'));
   }
   next();
 });
